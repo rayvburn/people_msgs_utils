@@ -32,6 +32,8 @@ catkin_package(
 add_library(people_msgs_utils
     include/${PROJECT_NAME}/person.h
     src/person.cpp
+    include/${PROJECT_NAME}/group.h
+    src/group.cpp
 )
 target_link_libraries(people_msgs_utils
     ${catkin_LIBRARIES}
