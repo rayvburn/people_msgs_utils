@@ -114,7 +114,7 @@ public:
 	}
 
 	inline unsigned int getGroupID() const {
-		return std::stoul(group_id_);
+		return std::stol(group_id_);
 	}
 
 	inline unsigned long int getGroupAge() const {
