@@ -148,6 +148,13 @@ public:
 		std::string token;
 		while ((pos = payload.find(delimiter)) != std::string::npos) {
 			token = payload.substr(0, pos);
+
+			// check if token stores some valid chars and not whitespaces
+			if(token.find_first_not_of(' ') == std::string::npos) {
+				payload.erase(0, pos + delimiter.length());
+				continue;
+			}
+
 			// convert with the biggest possible precision, then convert to desired type
 			values.push_back(static_cast<T>(std::stod(token)));
 			payload.erase(0, pos + delimiter.length());
