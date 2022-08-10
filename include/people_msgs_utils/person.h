@@ -101,7 +101,7 @@ public:
 		return detection_id_;
 	}
 
-	inline unsigned int getTrackAge() const {
+	inline unsigned long int getTrackAge() const {
 		return track_age_;
 	}
 
@@ -113,7 +113,7 @@ public:
 		return std::stoul(group_id_);
 	}
 
-	inline unsigned int getGroupAge() const {
+	inline unsigned long int getGroupAge() const {
 		return group_age_;
 	}
 
@@ -182,12 +182,12 @@ protected:
 	/// Detection ID of the person
 	unsigned int detection_id_;
 	/// How long this person has been tracked
-	unsigned int track_age_;
+	unsigned long int track_age_;
 
 	/// ID of the group that this person was classified to
 	std::string group_id_;
 	/// How long person's group has been tracked
-	unsigned int group_age_;
+	unsigned long int group_age_;
 	/// IDs of other people classified to the same group
 	std::vector<unsigned int> group_track_ids_;
 	/// Position of the group's center of gravity
