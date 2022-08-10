@@ -105,6 +105,10 @@ public:
 		return track_age_;
 	}
 
+	inline bool isAssignedToGroup() const {
+		return !group_track_ids_.empty();
+	}
+
 	inline std::string getGroupName() const {
 		return group_id_;
 	}
