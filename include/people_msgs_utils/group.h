@@ -15,23 +15,23 @@ public:
 
 	static std::vector<Group> fromPeople(const std::vector<Person>& people);
 
-	inline std::string getGroupName() const {
+	inline std::string getName() const {
 		return group_id_;
 	}
 
-	inline unsigned int getGroupID() const {
+	inline unsigned int getID() const {
 		return std::stoul(group_id_);
 	}
 
-	inline unsigned long int getGroupAge() const {
+	inline unsigned long int getAge() const {
 		return group_age_;
 	}
 
-	inline std::vector<unsigned int> getGroupTrackIDs() const {
+	inline std::vector<unsigned int> getTrackIDs() const {
 		return group_track_ids_;
 	}
 
-	inline geometry_msgs::Point getGroupCenterOfGravity() const {
+	inline geometry_msgs::Point getCenterOfGravity() const {
 		return group_center_of_gravity_;
 	}
 
