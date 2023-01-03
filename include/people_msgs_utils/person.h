@@ -1,7 +1,7 @@
 #pragma once
 
 #include <people_msgs/People.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PoseWithCovariance.h>
 #include <tf2/utils.h>
 
 #include <memory>
@@ -38,31 +38,58 @@ public:
 	}
 
 	inline geometry_msgs::Pose getPose() const {
-		return pose_;
+		return pose_.pose;
 	}
 
 	inline geometry_msgs::Point getPosition() const {
-		return pose_.position;
+		return pose_.pose.position;
 	}
 
 	inline geometry_msgs::Quaternion getOrientation() const {
-		return pose_.orientation;
+		return pose_.pose.orientation;
 	}
 
 	inline double getPositionX() const {
-		return pose_.position.x;
+		return pose_.pose.position.x;
 	}
 
 	inline double getPositionY() const {
-		return pose_.position.y;
+		return pose_.pose.position.y;
 	}
 
 	inline double getPositionZ() const {
-		return pose_.position.z;
+		return pose_.pose.position.z;
 	}
 
 	inline double getOrientationYaw() const {
-		return tf2::getYaw(pose_.orientation);
+		return tf2::getYaw(pose_.pose.orientation);
+	}
+
+	/// @return 6x6 matrix with covariance values
+	inline std::array<double, 36> getCovariancePose() const {
+		std::array<double, 36> arr;
+		std::copy(pose_.covariance.begin(), pose_.covariance.end(), arr.begin());
+		return arr;
+	}
+
+	inline double getCovariancePoseXX() const {
+		return pose_.covariance[0];
+	}
+
+	inline double getCovariancePoseXY() const {
+		return pose_.covariance[1];
+	}
+
+	inline double getCovariancePoseYX() const {
+		return pose_.covariance[6];
+	}
+
+	inline double getCovariancePoseYY() const {
+		return pose_.covariance[7];
+	}
+
+	inline double getCovariancePoseThTh() const {
+		return pose_.covariance[35];
 	}
 
 	inline double getReliability() const {
@@ -70,23 +97,50 @@ public:
 	}
 
 	inline geometry_msgs::Pose getVelocity() const {
-		return vel_;
+		return vel_.pose;
 	}
 
 	inline double getVelocityX() const {
-		return vel_.position.x;
+		return vel_.pose.position.x;
 	}
 
 	inline double getVelocityY() const {
-		return vel_.position.y;
+		return vel_.pose.position.y;
 	}
 
 	inline double getVelocityZ() const {
-		return vel_.position.z;
+		return vel_.pose.position.z;
 	}
 
 	inline double getVelocityTheta() const {
-		return tf2::getYaw(vel_.orientation);
+		return tf2::getYaw(vel_.pose.orientation);
+	}
+
+	/// @return 6x6 matrix with covariance values
+	inline std::array<double, 36> getCovarianceVelocity() const {
+		std::array<double, 36> arr;
+		std::copy(vel_.covariance.begin(), vel_.covariance.end(), arr.begin());
+		return arr;
+	}
+
+	inline double getCovarianceVelocityXX() const {
+		return vel_.covariance[0];
+	}
+
+	inline double getCovarianceVelocityXY() const {
+		return vel_.covariance[1];
+	}
+
+	inline double getCovarianceVelocityYX() const {
+		return vel_.covariance[6];
+	}
+
+	inline double getCovarianceVelocityYY() const {
+		return vel_.covariance[7];
+	}
+
+	inline double getCovarianceVelocityThTh() const {
+		return vel_.covariance[35];
 	}
 
 	inline bool isOccluded() const {
@@ -179,12 +233,15 @@ protected:
 
 	/// Person ID (number) is treated as name
 	std::string name_;
-	/// 2D pose (x, y, theta)
-	geometry_msgs::Pose pose_;
+	/// Carries 2D pose (x, y, theta) with relevant covariances
+	geometry_msgs::PoseWithCovariance pose_;
 	/// Defines accuracy of person's pose and velocity
 	double reliability_;
-	/// 2D velocity (x, y, theta)
-	geometry_msgs::Pose vel_;
+	/**
+	 * Carries 2D velocity (x, y, theta) with relevant covariances
+	 * NOTE: not twist as the velocity is expressed in a global coordinate system
+	 */
+	geometry_msgs::PoseWithCovariance vel_;
 
 	bool occluded_;
 	/// Whether person is currently matched by perception system
