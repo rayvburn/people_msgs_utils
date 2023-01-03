@@ -22,21 +22,21 @@ Person::Person(
 	track_age_(0),
 	group_age_(0)
 {
-	pose_.position = position;
+	pose_.pose.position = position;
 	// initial guess on orientation, may be adjusted using 'tags'
 	tf2::Quaternion quat;
 	quat.setRPY(0, 0, std::atan2(velocity.y, velocity.x));
-	pose_.orientation.x = quat.getX();
-	pose_.orientation.y = quat.getY();
-	pose_.orientation.z = quat.getZ();
-	pose_.orientation.w = quat.getW();
+	pose_.pose.orientation.x = quat.getX();
+	pose_.pose.orientation.y = quat.getY();
+	pose_.pose.orientation.z = quat.getZ();
+	pose_.pose.orientation.w = quat.getW();
 
-	vel_.position = velocity;
+	vel_.pose.position = velocity;
 	// initial guess on theta velocity
-	vel_.orientation.w = 1.0;
+	vel_.pose.orientation.w = 1.0;
 
 	// initial guess on COG of the group
-	group_center_of_gravity_ = pose_.position;
+	group_center_of_gravity_ = pose_.pose.position;
 
 	// Basic data was saved in initializer list.
 	// Now, check if tags contain some fancy data
@@ -67,10 +67,20 @@ bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vect
 		if (tag_it->find("orientation") != std::string::npos) {
 			auto orient_components = parseString<double>(*tag_value_it, DELIMITER);
 			if (orient_components.size() == 4) {
-				pose_.orientation.x = orient_components.at(0);
-				pose_.orientation.y = orient_components.at(1);
-				pose_.orientation.z = orient_components.at(2);
-				pose_.orientation.w = orient_components.at(3);
+				pose_.pose.orientation.x = orient_components.at(0);
+				pose_.pose.orientation.y = orient_components.at(1);
+				pose_.pose.orientation.z = orient_components.at(2);
+				pose_.pose.orientation.w = orient_components.at(3);
+			}
+		} else if (tag_it->find("pose_covariance") != std::string::npos) {
+			auto cov = parseString<double>(*tag_value_it, DELIMITER);
+			if (cov.size() == 36) {
+				std::copy(cov.begin(), cov.end(), pose_.covariance.begin());
+			}
+		} else if (tag_it->find("twist_covariance") != std::string::npos) {
+			auto cov = parseString<double>(*tag_value_it, DELIMITER);
+			if (cov.size() == 36) {
+				std::copy(cov.begin(), cov.end(), vel_.covariance.begin());
 			}
 		} else if (tag_it->find("occluded") != std::string::npos) {
 			occluded_ = parseStringBool(*tag_value_it);
