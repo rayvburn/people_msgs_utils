@@ -103,6 +103,25 @@ bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vect
 				group_center_of_gravity_.y = pos_v.at(1);
 				group_center_of_gravity_.z = pos_v.at(2);
 			}
+		} else if (tag_it->find("social_relations") != std::string::npos) {
+			auto relation_v = parseString<double>(*tag_value_it, DELIMITER);
+			// relations are expressed as triplets: ID, ID, strength
+			if (!relation_v.empty() && relation_v.size() % 3 == 0) {
+				for (
+					auto it = relation_v.cbegin();
+					it != relation_v.cend();
+					it = it + 3
+				) {
+					std::tuple<unsigned int, unsigned int, double> relation;
+					std::get<0>(relation) = static_cast<unsigned int>(*it);
+					std::get<1>(relation) = static_cast<unsigned int>(*(it+1));
+					std::get<2>(relation) = *(it+2);
+					// save only relations that are connected to the owner
+					if (std::get<0>(relation) == getID() || std::get<1>(relation) == getID()) {
+						social_relations_.push_back(relation);
+					}
+				}
+			}
 		}
 		tag_value_it++;
  	}
