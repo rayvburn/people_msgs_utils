@@ -143,6 +143,11 @@ public:
 		return group_center_of_gravity_;
 	}
 
+	/// @brief Returns social relations expressed as tuple: track ID, track ID, relation estimation accuracy
+	inline std::vector<std::tuple<unsigned int, unsigned int, double>> getSocialRelations() const {
+		return social_relations_;
+	}
+
 	/**
 	 * @brief Parses string containing a set of T-type values
 	 *
@@ -220,6 +225,8 @@ protected:
 	std::vector<unsigned int> group_track_ids_;
 	/// Position of the group's center of gravity
 	geometry_msgs::Point group_center_of_gravity_;
+	/// Social relations as tuple: track ID, track ID, relation estimation accuracy
+	std::vector<std::tuple<unsigned int, unsigned int, double>> social_relations_;
 
 }; // class Person
 
