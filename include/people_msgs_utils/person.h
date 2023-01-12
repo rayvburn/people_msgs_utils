@@ -183,8 +183,9 @@ public:
 		return group_center_of_gravity_;
 	}
 
-	/// @brief Returns social relations expressed as tuple: track ID, track ID, relation estimation accuracy
-	inline std::vector<std::tuple<unsigned int, unsigned int, double>> getSocialRelations() const {
+	/// @brief Returns social relations of the person expressed as tuple
+	/// Tuple contents: other person's track ID, relation estimation accuracy
+	inline std::vector<std::tuple<unsigned int, double>> getSocialRelations() const {
 		return social_relations_;
 	}
 
@@ -265,8 +266,8 @@ protected:
 	std::vector<unsigned int> group_track_ids_;
 	/// Position of the group's center of gravity
 	geometry_msgs::Point group_center_of_gravity_;
-	/// Social relations as tuple: track ID, track ID, relation estimation accuracy
-	std::vector<std::tuple<unsigned int, unsigned int, double>> social_relations_;
+	/// Social relations as tuple: other track ID, relation estimation accuracy
+	std::vector<std::tuple<unsigned int, double>> social_relations_;
 
 }; // class Person
 

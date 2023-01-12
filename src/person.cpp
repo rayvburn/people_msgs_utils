@@ -112,13 +112,13 @@ bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vect
 					it != relation_v.cend();
 					it = it + 3
 				) {
-					std::tuple<unsigned int, unsigned int, double> relation;
-					std::get<0>(relation) = static_cast<unsigned int>(*it);
-					std::get<1>(relation) = static_cast<unsigned int>(*(it+1));
-					std::get<2>(relation) = *(it+2);
+					unsigned int track_id1 = *it;
+					unsigned int track_id2 = *(it+1);
+					double strength = *(it+2);
 					// save only relations that are connected to the owner
-					if (std::get<0>(relation) == getID() || std::get<1>(relation) == getID()) {
-						social_relations_.push_back(relation);
+					if (getID() == track_id1 || getID() == track_id2) {
+						unsigned int related_id = (getID() == track_id1) ? track_id2 : track_id1;
+						social_relations_.push_back(std::make_tuple(related_id, strength));
 					}
 				}
 			}
