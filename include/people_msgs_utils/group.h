@@ -43,7 +43,7 @@ protected:
 };
 
 // Dummy group that does not contain any track IDs
-static const Group DUMMY_GROUP(
+static const Group EMPTY_GROUP(
 	std::to_string(std::numeric_limits<unsigned int>::max()),
 	0,
 	std::vector<unsigned int>(),
