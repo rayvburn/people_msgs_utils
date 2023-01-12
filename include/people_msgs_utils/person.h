@@ -12,6 +12,16 @@ namespace people_msgs_utils {
 
 class Person {
 public:
+	static constexpr auto COV_MAT_SIZE = 36;
+	static constexpr auto COV_XX_INDEX = 0;
+	static constexpr auto COV_XY_INDEX = 1;
+	static constexpr auto COV_YX_INDEX = 6;
+	static constexpr auto COV_YY_INDEX = 7;
+	static constexpr auto COV_ZZ_INDEX = 14;
+	static constexpr auto COV_ROLLROLL_INDEX = 21;
+	static constexpr auto COV_PITCHPITCH_INDEX = 28;
+	static constexpr auto COV_YAWYAW_INDEX = COV_MAT_SIZE - 1;
+
 	/**
 	 * @brief Basic constructor from people_msgs/Person
 	 */
@@ -66,30 +76,30 @@ public:
 	}
 
 	/// @return 6x6 matrix with covariance values
-	inline std::array<double, 36> getCovariancePose() const {
-		std::array<double, 36> arr;
+	inline std::array<double, COV_MAT_SIZE> getCovariancePose() const {
+		std::array<double, COV_MAT_SIZE> arr;
 		std::copy(pose_.covariance.begin(), pose_.covariance.end(), arr.begin());
 		return arr;
 	}
 
 	inline double getCovariancePoseXX() const {
-		return pose_.covariance[0];
+		return pose_.covariance[COV_XX_INDEX];
 	}
 
 	inline double getCovariancePoseXY() const {
-		return pose_.covariance[1];
+		return pose_.covariance[COV_XY_INDEX];
 	}
 
 	inline double getCovariancePoseYX() const {
-		return pose_.covariance[6];
+		return pose_.covariance[COV_YX_INDEX];
 	}
 
 	inline double getCovariancePoseYY() const {
-		return pose_.covariance[7];
+		return pose_.covariance[COV_YY_INDEX];
 	}
 
-	inline double getCovariancePoseThTh() const {
-		return pose_.covariance[35];
+	inline double getCovariancePoseYawYaw() const {
+		return pose_.covariance[COV_YAWYAW_INDEX];
 	}
 
 	inline double getReliability() const {
@@ -117,30 +127,30 @@ public:
 	}
 
 	/// @return 6x6 matrix with covariance values
-	inline std::array<double, 36> getCovarianceVelocity() const {
-		std::array<double, 36> arr;
+	inline std::array<double, COV_MAT_SIZE> getCovarianceVelocity() const {
+		std::array<double, COV_MAT_SIZE> arr;
 		std::copy(vel_.covariance.begin(), vel_.covariance.end(), arr.begin());
 		return arr;
 	}
 
 	inline double getCovarianceVelocityXX() const {
-		return vel_.covariance[0];
+		return vel_.covariance[COV_XX_INDEX];
 	}
 
 	inline double getCovarianceVelocityXY() const {
-		return vel_.covariance[1];
+		return vel_.covariance[COV_XY_INDEX];
 	}
 
 	inline double getCovarianceVelocityYX() const {
-		return vel_.covariance[6];
+		return vel_.covariance[COV_YX_INDEX];
 	}
 
 	inline double getCovarianceVelocityYY() const {
-		return vel_.covariance[7];
+		return vel_.covariance[COV_YY_INDEX];
 	}
 
 	inline double getCovarianceVelocityThTh() const {
-		return vel_.covariance[35];
+		return vel_.covariance[COV_YAWYAW_INDEX];
 	}
 
 	inline bool isOccluded() const {
