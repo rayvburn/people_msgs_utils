@@ -177,6 +177,11 @@ public:
 		return group_id_;
 	}
 
+	/**
+	 * Retrieves ID of the group that person is assigned to
+	 *
+	 * Before call to this, check the @ref isAssignedToGroup method
+	 */
 	inline unsigned int getGroupID() const {
 		return std::stol(group_id_);
 	}
