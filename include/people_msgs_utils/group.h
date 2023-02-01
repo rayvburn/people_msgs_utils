@@ -53,6 +53,9 @@ protected:
 	geometry_msgs::Point group_center_of_gravity_;
 };
 
+//! Abbrev. for container storing multiple objects
+typedef std::vector<Group> Groups;
+
 // Dummy group that does not contain any track IDs
 static const Group EMPTY_GROUP(
 	std::to_string(std::numeric_limits<unsigned int>::max()),
