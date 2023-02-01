@@ -172,7 +172,7 @@ public:
 	}
 
 	inline bool isAssignedToGroup() const {
-		return !group_track_ids_.empty();
+		return !group_id_.empty();
 	}
 
 	inline std::string getGroupName() const {
@@ -185,72 +185,15 @@ public:
 	 * Before call to this, check the @ref isAssignedToGroup method
 	 */
 	inline unsigned int getGroupID() const {
+		// TODO: Catch exception / create a static counter
 		return std::stol(group_id_);
 	}
-
-	inline unsigned long int getGroupAge() const {
-		return group_age_;
-	}
-
-	inline std::vector<unsigned int> getGroupTrackIDs() const {
-		return group_track_ids_;
-	}
-
-	inline geometry_msgs::Point getGroupCenterOfGravity() const {
-		return group_center_of_gravity_;
-	}
-
-	/// @brief Returns social relations of the person expressed as tuple
-	/// Tuple contents: other person's track ID, relation estimation accuracy
-	inline std::vector<std::tuple<unsigned int, double>> getSocialRelations() const {
-		return social_relations_;
-	}
-
-	/**
-	 * @brief Parses string containing a set of T-type values
-	 *
-	 * @tparam T type of values
-	 */
-	template <typename T>
-	static std::vector<T> parseString(const std::string& str, const std::string& delimiter) {
-		std::vector<T> values;
-		std::string payload(str);
-
-		if (str.empty() || delimiter.empty()) {
-			return values;
-		}
-
-		// https://stackoverflow.com/a/14266139
-		size_t pos = 0;
-		std::string token;
-		while ((pos = payload.find(delimiter)) != std::string::npos) {
-			token = payload.substr(0, pos);
-
-			// check if token stores some valid chars and not whitespaces
-			if(token.find_first_not_of(' ') == std::string::npos) {
-				payload.erase(0, pos + delimiter.length());
-				continue;
-			}
-
-			// convert with the biggest possible precision, then convert to desired type
-			values.push_back(static_cast<T>(std::stod(token)));
-			payload.erase(0, pos + delimiter.length());
-		}
-
-		bool token_with_whitespace_only = payload.find_first_not_of("\t\n ") == std::string::npos;
-		if (payload.empty() || token_with_whitespace_only) {
-			return values;
-		}
-
-		// token still stores some meaningful value
-		values.push_back(static_cast<T>(std::stod(payload)));
-	}
-
-	static bool parseStringBool(const std::string& str);
 
 protected:
 	/**
 	 * @brief Returns true if tagnames and tags are valid, no matter if expected data were found inside
+	 *
+	 * This method parses only person-specific tags
 	 */
 	bool parseTags(const std::vector<std::string>& tagnames, const std::vector<std::string>& tags);
 
@@ -277,14 +220,6 @@ protected:
 
 	/// ID of the group that this person was classified to
 	std::string group_id_;
-	/// How long person's group has been tracked
-	unsigned long int group_age_;
-	/// IDs of other people classified to the same group
-	std::vector<unsigned int> group_track_ids_;
-	/// Position of the group's center of gravity
-	geometry_msgs::Point group_center_of_gravity_;
-	/// Social relations as tuple: other track ID, relation estimation accuracy
-	std::vector<std::tuple<unsigned int, double>> social_relations_;
 
 }; // class Person
 

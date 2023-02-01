@@ -34,6 +34,8 @@ add_library(people_msgs_utils
     src/person.cpp
     include/${PROJECT_NAME}/group.h
     src/group.cpp
+    include/${PROJECT_NAME}/utils.h
+    src/utils.cpp
 )
 target_link_libraries(people_msgs_utils
     ${catkin_LIBRARIES}
