@@ -4,8 +4,10 @@
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <tf2/utils.h>
 
+#include <array>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace people_msgs_utils {

@@ -2,6 +2,8 @@
 
 #include "person.h"
 
+#include <limits>
+
 namespace people_msgs_utils {
 
 class Group {
