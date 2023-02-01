@@ -46,3 +46,12 @@ install(TARGETS people_msgs_utils
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
+
+## Testing
+# catkin run_tests --no-deps people_msgs_utils --verbose
+if (CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(test_creation test/test_creation.cpp)
+  if(TARGET test_creation)
+    target_link_libraries(test_creation people_msgs_utils)
+  endif()
+endif()
