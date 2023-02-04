@@ -1,4 +1,6 @@
-<package>
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
     <name>people_msgs_utils</name>
     <version>1.0.0</version>
     <description>people_msgs_utils package</description>
@@ -9,13 +11,9 @@
     <buildtool_depend>catkin</buildtool_depend>
 
     <build_depend>cmake_modules</build_depend>
-    <build_depend>geometry_msgs</build_depend>
-    <build_depend>people_msgs</build_depend>
-    <build_depend>tf2</build_depend>
-    <build_depend>tf2_ros</build_depend>
 
-    <run_depend>geometry_msgs</run_depend>
-    <run_depend>people_msgs</run_depend>
-    <run_depend>tf2</run_depend>
-    <run_depend>tf2_ros</run_depend>
+    <depend>geometry_msgs</depend>
+    <depend>people_msgs</depend>
+    <depend>tf2</depend>
+    <depend>tf2_ros</depend>
 </package>
