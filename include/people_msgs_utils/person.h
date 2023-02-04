@@ -41,6 +41,21 @@ public:
 		const std::vector<std::string>& tags
 	);
 
+	/**
+	 * @brief Constructor with all attributes given explicitly
+	 */
+	Person(
+		const std::string& name,
+		const geometry_msgs::PoseWithCovariance& pose,
+		const geometry_msgs::PoseWithCovariance& velocity,
+		const double& reliability,
+		bool occluded,
+		bool matched,
+		unsigned int detection_id,
+		unsigned long int track_age,
+		const std::string& group_name
+	);
+
 	inline std::string getName() const {
 		return name_;
 	}

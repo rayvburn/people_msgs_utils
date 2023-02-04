@@ -40,6 +40,28 @@ Person::Person(
 	parseTags(tagnames, tags);
 }
 
+Person::Person(
+	const std::string& name,
+	const geometry_msgs::PoseWithCovariance& pose,
+	const geometry_msgs::PoseWithCovariance& velocity,
+	const double& reliability,
+	bool occluded,
+	bool matched,
+	unsigned int detection_id,
+	unsigned long int track_age,
+	const std::string& group_name
+):
+	name_(name),
+	pose_(pose),
+	reliability_(reliability),
+	vel_(velocity),
+	occluded_(occluded),
+	matched_(matched),
+	detection_id_(detection_id),
+	track_age_(track_age),
+	group_id_(group_name)
+{}
+
 bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vector<std::string>& tags) {
 	if ((tagnames.size() != tags.size()) || tagnames.empty()) {
 		// no additional data can be retrieved
