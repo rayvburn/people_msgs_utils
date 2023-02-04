@@ -294,6 +294,112 @@ TEST(ExtractionTest, groupHasMember) {
 	}
 }
 
+TEST(ExtractionTest, fillGroupsWithMembers) {
+	std::vector<people_msgs::Person> people_std = createSet2();
+
+	// groups created by hand (without members)
+	std::vector<Person> people;
+	std::tie(people, std::ignore) = createFromPeople(people_std);
+
+	Group group5(
+		std::string("5"),
+		/* does not matter */ 0,
+		/* no member instances! */ std::vector<Person>(),
+		std::vector<unsigned int>{0, 1, 8},
+		/* does not matter */ {{0, 1, 0.459}, {0, 8, 0.456}, {1, 8, 0.789}},
+		/* does not matter */ geometry_msgs::Point()
+	);
+	ASSERT_EQ(group5.getMemberIDs().size(), 3);
+	ASSERT_TRUE(group5.getMembers().empty());
+
+	Group group9(
+		std::string("9"),
+		0,
+		std::vector<Person>(),
+		std::vector<unsigned int>{4, 5},
+		std::vector<std::tuple<unsigned int, unsigned int, double>>(),
+		geometry_msgs::Point()
+	);
+	ASSERT_EQ(group9.getMemberIDs().size(), 2);
+	ASSERT_TRUE(group9.getMembers().empty());
+
+	// check vector with a single group
+	std::vector<Group> groups{group5};
+	groups = fillGroupsWithMembers(groups, people);
+	ASSERT_EQ(groups.size(), 1);
+	group5 = groups.at(0);
+	ASSERT_EQ(group5.getMembers().size(), 3);
+	ASSERT_EQ(group5.getMemberIDs().size(), 3);
+
+	// check vector with multiple groups
+	groups = std::vector<Group>{group5, group9};
+	groups = fillGroupsWithMembers(groups, people);
+	ASSERT_EQ(groups.size(), 2);
+	for (const auto& group: groups) {
+		if (group.getName() == "5") {
+			ASSERT_EQ(group.getMemberIDs().size(), 3);
+			ASSERT_EQ(group.getMembers().size(), 3);
+			// make sure that required member IDs are found
+			ASSERT_NE(
+				std::find_if(
+					group.getMembers().cbegin(),
+					group.getMembers().cend(),
+					[](const people_msgs_utils::Person& person) {
+						return person.getID() == 0;
+					}
+				),
+				group.getMembers().cend()
+			);
+			ASSERT_NE(
+				std::find_if(
+					group.getMembers().cbegin(),
+					group.getMembers().cend(),
+					[](const people_msgs_utils::Person& person) {
+						return person.getID() == 1;
+					}
+				),
+				group.getMembers().cend()
+			);
+			ASSERT_NE(
+				std::find_if(
+					group.getMembers().cbegin(),
+					group.getMembers().cend(),
+					[](const people_msgs_utils::Person& person) {
+						return person.getID() == 8;
+					}
+				),
+				group.getMembers().cend()
+			);
+		} else if (group.getName() == "9") {
+			ASSERT_EQ(group.getMemberIDs().size(), 2);
+			ASSERT_EQ(group.getMembers().size(), 2);
+			// make sure that required member IDs are found
+			ASSERT_NE(
+				std::find_if(
+					group.getMembers().cbegin(),
+					group.getMembers().cend(),
+					[](const people_msgs_utils::Person& person) {
+						return person.getID() == 4;
+					}
+				),
+				group.getMembers().cend()
+			);
+			ASSERT_NE(
+				std::find_if(
+					group.getMembers().cbegin(),
+					group.getMembers().cend(),
+					[](const people_msgs_utils::Person& person) {
+						return person.getID() == 5;
+					}
+				),
+				group.getMembers().cend()
+			);
+		} else {
+			ASSERT_EQ(true, false);
+		}
+	}
+}
+
 int main(int argc, char** argv) {
 	testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();

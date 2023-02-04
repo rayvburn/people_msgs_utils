@@ -126,6 +126,30 @@ std::pair<std::vector<Person>, std::vector<Group>> createFromPeople(const std::v
 	return std::make_pair(people_total, groups_total);
 }
 
+std::vector<Group> fillGroupsWithMembers(const std::vector<Group>& groups, const std::vector<Person>& people) {
+	std::vector<Group> groups_filled;
+	for (const auto& group: groups) {
+		std::vector<Person> people_from_group;
+		auto people_ids = group.getMemberIDs();
+		for (const auto& person: people) {
+			bool is_member = std::find(people_ids.begin(), people_ids.end(), person.getID()) != people_ids.end();
+			if (!is_member) {
+				continue;
+			}
+			people_from_group.push_back(person);
+		}
+		groups_filled.emplace_back(
+			group.getName(),
+			group.getAge(),
+			people_from_group,
+			people_ids,
+			group.getSocialRelations(),
+			group.getCenterOfGravity()
+		);
+	}
+	return groups_filled;
+}
+
 bool parseStringBool(const std::string& str) {
 	if (str == "True" || str == "true" || str == "1") {
 		return true;

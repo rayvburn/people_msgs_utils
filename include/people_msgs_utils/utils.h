@@ -16,6 +16,15 @@ namespace people_msgs_utils {
 std::pair<std::vector<Person>, std::vector<Group>> createFromPeople(const std::vector<people_msgs::Person>& people);
 
 /**
+ * Function that is handy once groups were created only with member IDs, without actual Person class instances
+ *
+ * Based on the given @ref people vector, @ref groups are recreated with Person class instances
+ *
+ * @return Groups set given by @ref groups complemented with Person instances according to member identifiers
+ */
+std::vector<Group> fillGroupsWithMembers(const std::vector<Group>& groups, const std::vector<Person>& people);
+
+/**
  * @brief Helper function for parsing bool values
  */
 bool parseStringBool(const std::string& str);
