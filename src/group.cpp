@@ -4,12 +4,12 @@
 namespace people_msgs_utils {
 
 Group::Group(
-	std::string id,
+	const std::string& id,
 	unsigned long int age,
 	const std::vector<Person>& members,
-	std::vector<unsigned int> member_ids,
-	std::vector<std::tuple<unsigned int, unsigned int, double>> relations,
-	geometry_msgs::Point center_of_gravity
+	const std::vector<unsigned int>& member_ids,
+	const std::vector<std::tuple<unsigned int, unsigned int, double>>& relations,
+	const geometry_msgs::Point& center_of_gravity
 ):
 	group_id_(id),
 	age_(age),
