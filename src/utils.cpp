@@ -112,9 +112,12 @@ std::pair<std::vector<Person>, std::vector<Group>> createFromPeople(const std::v
 	/*
 	 * Stage 4
 	 */
-	// create groups
+	// create groups if they have multiple members assigned
 	std::vector<Group> groups_total;
 	for (const auto& group: people_grouped) {
+		if (group.second.people.size() < 2) {
+			continue;
+		}
 		groups_total.emplace_back(
 			group.first,
 			group.second.people,
