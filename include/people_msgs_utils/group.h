@@ -9,6 +9,9 @@
 
 namespace people_msgs_utils {
 
+/**
+ * @brief Stores attributes of the group of people
+ */
 class Group {
 public:
 	Group(
@@ -41,7 +44,12 @@ public:
 		return age_;
 	}
 
-	/// @brief Returns a set of people (given in ctor) that belong to the group
+	/**
+	 * Returns a set of people (given in ctor) that belong to the group
+	 *
+	 * @details User should always check if getMembers() returns non-empty vector.
+	 * The instance can be ill-formed if members are not given to constructor.
+	 */
 	inline std::vector<Person> getMembers() const {
 		return members_;
 	}
