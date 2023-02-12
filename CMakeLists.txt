@@ -9,11 +9,13 @@ find_package(catkin REQUIRED
         geometry_msgs
         tf2
         tf2_ros
+        social_nav_utils
 )
 
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
+    ${social_nav_utils_INCLUDE_DIRS}
 )
 
 catkin_package(
@@ -26,6 +28,7 @@ catkin_package(
         geometry_msgs
         tf2
         tf2_ros
+        social_nav_utils
 )
 
 ## Library
@@ -39,6 +42,7 @@ add_library(people_msgs_utils
 )
 target_link_libraries(people_msgs_utils
     ${catkin_LIBRARIES}
+    ${social_nav_utils_LIBRARIES}
 )
 
 ## Install
