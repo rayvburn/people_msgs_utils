@@ -1,6 +1,8 @@
 #include <people_msgs_utils/group.h>
 #include <people_msgs_utils/utils.h>
 
+#include <social_nav_utils/ellipse_fitting.h>
+
 namespace people_msgs_utils {
 
 Group::Group(
@@ -17,7 +19,9 @@ Group::Group(
 	member_ids_(member_ids),
 	social_relations_(relations),
 	center_of_gravity_(center_of_gravity)
-{}
+{
+	computeSpatialModel();
+}
 
 Group::Group(
 	const std::string id,
@@ -29,6 +33,7 @@ Group::Group(
 	members_(members)
 {
 	parseTags(tagnames, tags);
+	computeSpatialModel();
 }
 
 bool Group::hasMember(unsigned int person_id) const {
@@ -104,6 +109,76 @@ bool Group::parseTags(const std::vector<std::string>& tagnames, const std::vecto
 		}
 		tag_value_it++;
 	}
+}
+
+void Group::computeSpatialModel() {
+	if (getMembers().empty()) {
+		// spatial model cannot be defined for a group without members
+		pose_.pose.position.x = center_of_gravity_.x;
+		pose_.pose.position.y = center_of_gravity_.y;
+		pose_.pose.orientation.w = 1.0;
+		pose_.covariance.assign(COVARIANCE_UNKNOWN);
+		span_.x = 0.0;
+		span_.y = 0.0;
+		return;
+	}
+
+	// Approximate O-space with an ellipse
+	// - start with collecting points (member positions)
+	std::vector<double> ospace_x;
+	std::vector<double> ospace_y;
+	for (const auto& person: getMembers()) {
+	  ospace_x.push_back(person.getPositionX());
+	  ospace_y.push_back(person.getPositionY());
+	}
+	social_nav_utils::EllipseFitting ellipse(ospace_x, ospace_y);
+
+	// store
+	pose_.pose.position.x = ellipse.getCenterX();
+	pose_.pose.position.y = ellipse.getCenterY();
+	pose_.pose.position.z = 0.0;
+	tf2::Quaternion quat;
+	quat.setRPY(0.0, 0.0, ellipse.getOrientation());
+	pose_.pose.orientation.x = quat.getX();
+	pose_.pose.orientation.y = quat.getY();
+	pose_.pose.orientation.z = quat.getZ();
+	pose_.pose.orientation.w = quat.getW();
+
+	/*
+	 * Compute `cost` of the robot being located in the current position - how it affects group's ease.
+	 * Prepare Gaussian representation of the O-space's shape.
+	 */
+	// find uncertainty of the O-space mean position estimation based on member variances
+	std::vector<double> variances_p_xx;
+	std::vector<double> variances_p_xy;
+	std::vector<double> variances_p_yx;
+	std::vector<double> variances_p_yy;
+	for (const auto& person: getMembers()) {
+	  variances_p_xx.push_back(person.getCovariancePoseXX());
+	  variances_p_xy.push_back(person.getCovariancePoseXY());
+	  variances_p_yx.push_back(person.getCovariancePoseYX());
+	  variances_p_yy.push_back(person.getCovariancePoseYY());
+	}
+	double variance_p_xx = *std::max_element(variances_p_xx.begin(), variances_p_xx.end());
+	double variance_p_xy = *std::max_element(variances_p_xy.begin(), variances_p_xy.end());
+	double variance_p_yx = *std::max_element(variances_p_yx.begin(), variances_p_yx.end());
+	double variance_p_yy = *std::max_element(variances_p_yy.begin(), variances_p_yy.end());
+	double variance_p_xyyx = std::max(variance_p_xy, variance_p_yx);
+
+	// store
+	pose_.covariance.assign(0.0);
+	pose_.covariance.at(Person::COV_XX_INDEX) = variance_p_xx;
+	pose_.covariance.at(Person::COV_XY_INDEX) = variance_p_xyyx;
+	pose_.covariance.at(Person::COV_YX_INDEX) = variance_p_xyyx;
+	pose_.covariance.at(Person::COV_YY_INDEX) = variance_p_yy;
+	pose_.covariance.at(Person::COV_ZZ_INDEX) = COVARIANCE_UNKNOWN;
+	pose_.covariance.at(Person::COV_ROLLROLL_INDEX) = COVARIANCE_UNKNOWN;
+	pose_.covariance.at(Person::COV_PITCHPITCH_INDEX) = COVARIANCE_UNKNOWN;
+	pose_.covariance.at(Person::COV_YAWYAW_INDEX) = 1.0 / COVARIANCE_UNKNOWN;
+
+	// store the size of the ellipse
+	span_.x = 2.0 * ellipse.getSemiAxisMajor();
+	span_.y = 2.0 * ellipse.getSemiAxisMinor();
 }
 
 } // namespace people_msgs_utils
