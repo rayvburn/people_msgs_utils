@@ -60,10 +60,6 @@ public:
 		return name_;
 	}
 
-	inline unsigned int getID() const {
-		return std::stoul(name_);
-	}
-
 	inline geometry_msgs::Pose getPose() const {
 		return pose_.pose;
 	}
@@ -190,18 +186,11 @@ public:
 		return !group_id_.empty();
 	}
 
-	inline std::string getGroupName() const {
-		return group_id_;
-	}
-
 	/**
 	 * Retrieves ID of the group that person is assigned to
-	 *
-	 * Before call to this, check the @ref isAssignedToGroup method
 	 */
-	inline unsigned int getGroupID() const {
-		// TODO: Catch exception / create a static counter
-		return std::stol(group_id_);
+	inline std::string getGroupName() const {
+		return group_id_;
 	}
 
 protected:

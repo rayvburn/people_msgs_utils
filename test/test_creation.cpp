@@ -20,7 +20,6 @@ TEST(ExtractionTest, singlePersonAttributes) {
 	Person person(people_std.at(0));
 
 	EXPECT_EQ(person.getName(), "145");
-	EXPECT_EQ(person.getID(), 145);
 
 	EXPECT_NEAR(person.getPositionX(), 1.123, 1e-06);
 	EXPECT_NEAR(person.getPositionY(), 2.321, 1e-06);
@@ -65,7 +64,6 @@ TEST(ExtractionTest, peopleInGroups) {
 
 	// assuming order of creation
 	EXPECT_EQ(people.at(5).getName(), "8");
-	EXPECT_EQ(people.at(5).getID(), 8);
 	ASSERT_EQ(people.at(5).isAssignedToGroup(), true);
 	ASSERT_EQ(people.at(5).getGroupName(), "5");
 
@@ -99,27 +97,27 @@ TEST(ExtractionTest, peopleInGroups) {
 	ASSERT_EQ(groups.size(), 2);
 	for (const auto group: groups) {
 		if (group.getName() == "5") {
-			ASSERT_EQ(group.getID(), 5);
+			ASSERT_EQ(group.getName(), "5");
 			EXPECT_EQ(group.getAge(), 159);
 
 			auto track_ids = group.getMemberIDs();
 			ASSERT_EQ(track_ids.size(), 3);
 			// only one such entry must be found
-			auto it = std::find(track_ids.begin(), track_ids.end(), 0);
+			auto it = std::find(track_ids.begin(), track_ids.end(), "0");
 			ASSERT_NE(it, track_ids.end());
-			it = std::find(it + 1, track_ids.end(), 0);
+			it = std::find(it + 1, track_ids.end(), "0");
 			ASSERT_EQ(it, track_ids.end());
 
 			// only one such entry must be found
-			it = std::find(track_ids.begin(), track_ids.end(), 1);
+			it = std::find(track_ids.begin(), track_ids.end(), "1");
 			ASSERT_NE(it, track_ids.end());
-			it = std::find(it + 1, track_ids.end(), 1);
+			it = std::find(it + 1, track_ids.end(), "1");
 			ASSERT_EQ(it, track_ids.end());
 
 			// only one such entry must be found
-			it = std::find(track_ids.begin(), track_ids.end(), 8);
+			it = std::find(track_ids.begin(), track_ids.end(), "8");
 			ASSERT_NE(it, track_ids.end());
-			it = std::find(it + 1, track_ids.end(), 8);
+			it = std::find(it + 1, track_ids.end(), "8");
 			ASSERT_EQ(it, track_ids.end());
 
 			EXPECT_EQ(group.getCenterOfGravity().x, 9.0);
@@ -127,21 +125,21 @@ TEST(ExtractionTest, peopleInGroups) {
 			EXPECT_EQ(group.getCenterOfGravity().z, 7.0);
 
 		} else if (group.getName() == "9") {
-			EXPECT_EQ(group.getID(), 9);
+			EXPECT_EQ(group.getName(), "9");
 			EXPECT_EQ(group.getAge(), 147);
 
 			auto track_ids = group.getMemberIDs();
 			ASSERT_EQ(track_ids.size(), 2);
 			// only one such entry must be found
-			auto it = std::find(track_ids.begin(), track_ids.end(), 4);
+			auto it = std::find(track_ids.begin(), track_ids.end(), "4");
 			ASSERT_NE(it, track_ids.end());
-			it = std::find(it + 1, track_ids.end(), 4);
+			it = std::find(it + 1, track_ids.end(), "4");
 			ASSERT_EQ(it, track_ids.end());
 
 			// only one such entry must be found
-			it = std::find(track_ids.begin(), track_ids.end(), 5);
+			it = std::find(track_ids.begin(), track_ids.end(), "5");
 			ASSERT_NE(it, track_ids.end());
-			it = std::find(it + 1, track_ids.end(), 5);
+			it = std::find(it + 1, track_ids.end(), "5");
 			ASSERT_EQ(it, track_ids.end());
 
 			EXPECT_EQ(group.getCenterOfGravity().x, 1.0);
@@ -166,38 +164,38 @@ TEST(ExtractionTest, relationsInGroups) {
 	ASSERT_EQ(groups.size(), 2);
 
 	for (const auto& group: groups) {
-		std::vector<std::tuple<unsigned int, unsigned int, double>> relations = group.getSocialRelations();
-		if (group.getID() == 5) {
+		std::vector<std::tuple<std::string, std::string, double>> relations = group.getSocialRelations();
+		if (group.getName() == "5") {
 			ASSERT_EQ(relations.size(), 3);
 			// order might not be deterministic
 			for (const auto& relation: relations) {
 				if (
-					(std::get<0>(relation) == 0 && std::get<1>(relation) == 1)
-					|| (std::get<0>(relation) == 1 && std::get<1>(relation) == 0)
+					(std::get<0>(relation) == "0" && std::get<1>(relation) == "1")
+					|| (std::get<0>(relation) == "1" && std::get<1>(relation) == "0")
 				) {
 					ASSERT_EQ(std::get<2>(relation), 0.459);
 				} else if (
-					(std::get<0>(relation) == 0 && std::get<1>(relation) == 8)
-					|| (std::get<0>(relation) == 8 && std::get<1>(relation) == 0)
+					(std::get<0>(relation) == "0" && std::get<1>(relation) == "8")
+					|| (std::get<0>(relation) == "8" && std::get<1>(relation) == "0")
 				) {
 					ASSERT_EQ(std::get<2>(relation), 0.456);
 				} else if (
-					(std::get<0>(relation) == 1 && std::get<1>(relation) == 8)
-					|| (std::get<0>(relation) == 8 && std::get<1>(relation) == 1)
+					(std::get<0>(relation) == "1" && std::get<1>(relation) == "8")
+					|| (std::get<0>(relation) == "8" && std::get<1>(relation) == "1")
 				) {
 					ASSERT_EQ(std::get<2>(relation), 0.789);
 				} else {
 					ASSERT_EQ(true, false);
 				}
 			}
-		} else if (group.getID() == 9) {
+		} else if (group.getName() == "9") {
 			// 2 people -> 1 relation
 			ASSERT_EQ(relations.size(), 1);
 			// order might not be deterministic
 			for (const auto& relation: relations) {
 				if (
-					(std::get<0>(relation) == 4 && std::get<1>(relation) == 5)
-					|| (std::get<0>(relation) == 5 && std::get<1>(relation) == 4)
+					(std::get<0>(relation) == "4" && std::get<1>(relation) == "5")
+					|| (std::get<0>(relation) == "5" && std::get<1>(relation) == "4")
 				) {
 					ASSERT_EQ(std::get<2>(relation), 0.987);
 				} else {
@@ -222,46 +220,46 @@ TEST(ExtractionTest, relationsOfMember) {
 	ASSERT_EQ(groups.size(), 2);
 
 	for (const auto& group: groups) {
-		if (group.getID() == 5) {
-			auto rels0 = group.getSocialRelations(0);
+		if (group.getName() == "5") {
+			auto rels0 = group.getSocialRelations("0");
 			for (const auto& rel0: rels0) {
-				if (rel0.first == 1) {
+				if (rel0.first == "1") {
 					ASSERT_EQ(rel0.second, 0.459);
-				} else if (rel0.first == 8) {
+				} else if (rel0.first == "8") {
 					ASSERT_EQ(rel0.second, 0.456);
 				} else {
 					ASSERT_EQ(true, false);
 				}
 			}
-			auto rels1 = group.getSocialRelations(1);
+			auto rels1 = group.getSocialRelations("1");
 			for (const auto& rel1: rels1) {
-				if (rel1.first == 0) {
+				if (rel1.first == "0") {
 					ASSERT_EQ(rel1.second, 0.459);
-				} else if (rel1.first == 8) {
+				} else if (rel1.first == "8") {
 					ASSERT_EQ(rel1.second, 0.789);
 				} else {
 					ASSERT_EQ(true, false);
 				}
 			}
-			auto rels8 = group.getSocialRelations(8);
+			auto rels8 = group.getSocialRelations("8");
 			for (const auto& rel8: rels8) {
-				if (rel8.first == 0) {
+				if (rel8.first == "0") {
 					ASSERT_EQ(rel8.second, 0.456);
-				} else if (rel8.first == 1) {
+				} else if (rel8.first == "1") {
 					ASSERT_EQ(rel8.second, 0.789);
 				} else {
 					ASSERT_EQ(true, false);
 				}
 			}
-		} else if (group.getID() == 9) {
-			auto rels4 = group.getSocialRelations(4);
+		} else if (group.getName() == "9") {
+			auto rels4 = group.getSocialRelations("4");
 			ASSERT_EQ(rels4.size(), 1);
-			rels4.at(0).first == 5;
+			rels4.at(0).first == "5";
 			rels4.at(0).second == 0.987;
 
-			auto rels5 = group.getSocialRelations(5);
+			auto rels5 = group.getSocialRelations("5");
 			ASSERT_EQ(rels5.size(), 1);
-			rels5.at(0).first == 4;
+			rels5.at(0).first == "4";
 			rels5.at(0).second == 0.987;
 		} else {
 			ASSERT_EQ(true, false);
@@ -281,13 +279,13 @@ TEST(ExtractionTest, groupHasMember) {
 	ASSERT_EQ(groups.size(), 2);
 
 	for (const auto& group: groups) {
-		if (group.getID() == 5) {
-			ASSERT_TRUE(group.hasMember(0));
-			ASSERT_TRUE(group.hasMember(1));
-			ASSERT_TRUE(group.hasMember(8));
-		} else if (group.getID() == 9) {
-			ASSERT_TRUE(group.hasMember(4));
-			ASSERT_TRUE(group.hasMember(5));
+		if (group.getName() == "5") {
+			ASSERT_TRUE(group.hasMember("0"));
+			ASSERT_TRUE(group.hasMember("1"));
+			ASSERT_TRUE(group.hasMember("8"));
+		} else if (group.getName() == "9") {
+			ASSERT_TRUE(group.hasMember("4"));
+			ASSERT_TRUE(group.hasMember("5"));
 		} else {
 			ASSERT_EQ(true, false);
 		}
@@ -305,8 +303,8 @@ TEST(ExtractionTest, fillGroupsWithMembers) {
 		std::string("5"),
 		/* does not matter */ 0,
 		/* no member instances! */ std::vector<Person>(),
-		std::vector<unsigned int>{0, 1, 8},
-		/* does not matter */ {{0, 1, 0.459}, {0, 8, 0.456}, {1, 8, 0.789}},
+		std::vector<std::string>{"0", "1", "8"},
+		/* does not matter */ {{"0", "1", 0.459}, {"0", "8", 0.456}, {"1", "8", 0.789}},
 		/* does not matter */ geometry_msgs::Point()
 	);
 	ASSERT_EQ(group5.getMemberIDs().size(), 3);
@@ -316,8 +314,8 @@ TEST(ExtractionTest, fillGroupsWithMembers) {
 		std::string("9"),
 		0,
 		std::vector<Person>(),
-		std::vector<unsigned int>{4, 5},
-		std::vector<std::tuple<unsigned int, unsigned int, double>>(),
+		std::vector<std::string>{"4", "5"},
+		std::vector<std::tuple<std::string, std::string, double>>(),
 		geometry_msgs::Point()
 	);
 	ASSERT_EQ(group9.getMemberIDs().size(), 2);
@@ -345,7 +343,7 @@ TEST(ExtractionTest, fillGroupsWithMembers) {
 					group.getMembers().cbegin(),
 					group.getMembers().cend(),
 					[](const people_msgs_utils::Person& person) {
-						return person.getID() == 0;
+						return person.getName() == "0";
 					}
 				),
 				group.getMembers().cend()
@@ -355,7 +353,7 @@ TEST(ExtractionTest, fillGroupsWithMembers) {
 					group.getMembers().cbegin(),
 					group.getMembers().cend(),
 					[](const people_msgs_utils::Person& person) {
-						return person.getID() == 1;
+						return person.getName() == "1";
 					}
 				),
 				group.getMembers().cend()
@@ -365,7 +363,7 @@ TEST(ExtractionTest, fillGroupsWithMembers) {
 					group.getMembers().cbegin(),
 					group.getMembers().cend(),
 					[](const people_msgs_utils::Person& person) {
-						return person.getID() == 8;
+						return person.getName() == "8";
 					}
 				),
 				group.getMembers().cend()
@@ -379,7 +377,7 @@ TEST(ExtractionTest, fillGroupsWithMembers) {
 					group.getMembers().cbegin(),
 					group.getMembers().cend(),
 					[](const people_msgs_utils::Person& person) {
-						return person.getID() == 4;
+						return person.getName() == "4";
 					}
 				),
 				group.getMembers().cend()
@@ -389,7 +387,7 @@ TEST(ExtractionTest, fillGroupsWithMembers) {
 					group.getMembers().cbegin(),
 					group.getMembers().cend(),
 					[](const people_msgs_utils::Person& person) {
-						return person.getID() == 5;
+						return person.getName() == "5";
 					}
 				),
 				group.getMembers().cend()

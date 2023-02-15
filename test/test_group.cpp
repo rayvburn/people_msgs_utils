@@ -85,14 +85,14 @@ TEST(GroupTest, spatialModel) {
 			{Person("04", pos4, vel, 0.984, false, true, 954, 855, "123")}
 		},
 		// member IDs
-		std::vector<unsigned int>{01, 02, 03, 04},
+		std::vector<std::string>{"01", "02", "03", "04"},
 		// relations
-		std::vector<std::tuple<unsigned int, unsigned int, double>>{
-			{01, 02, 0.987},
-			{01, 03, 0.987},
-			{01, 04, 0.987},
-			{02, 04, 0.789},
-			{02, 03, 0.147}
+		std::vector<std::tuple<std::string, std::string, double>>{
+			{"01", "02", 0.987},
+			{"01", "03", 0.987},
+			{"01", "04", 0.987},
+			{"02", "04", 0.789},
+			{"02", "03", 0.147}
 		},
 		geometry_msgs::Point()
 	);

@@ -135,7 +135,7 @@ std::vector<Group> fillGroupsWithMembers(const std::vector<Group>& groups, const
 		std::vector<Person> people_from_group;
 		auto people_ids = group.getMemberIDs();
 		for (const auto& person: people) {
-			bool is_member = std::find(people_ids.begin(), people_ids.end(), person.getID()) != people_ids.end();
+			bool is_member = std::find(people_ids.begin(), people_ids.end(), person.getName()) != people_ids.end();
 			if (!is_member) {
 				continue;
 			}
@@ -158,6 +158,42 @@ bool parseStringBool(const std::string& str) {
 		return true;
 	}
 	return false;
+}
+
+// Template full specialization
+template<>
+std::vector<std::string> parseString<std::string>(const std::string& str, const std::string& delimiter) {
+	std::vector<std::string> values;
+	std::string payload(str);
+
+	if (str.empty() || delimiter.empty()) {
+		return values;
+	}
+
+	// https://stackoverflow.com/a/14266139
+	size_t pos = 0;
+	std::string token;
+	while ((pos = payload.find(delimiter)) != std::string::npos) {
+		token = payload.substr(0, pos);
+
+		// check if token stores some valid chars and not whitespaces
+		if(token.find_first_not_of(' ') == std::string::npos) {
+			payload.erase(0, pos + delimiter.length());
+			continue;
+		}
+
+		// convert with the biggest possible precision, then convert to desired type
+		values.push_back(token);
+		payload.erase(0, pos + delimiter.length());
+	}
+
+	bool token_with_whitespace_only = payload.find_first_not_of("\t\n ") == std::string::npos;
+	if (payload.empty() || token_with_whitespace_only) {
+		return values;
+	}
+
+	// token still stores some meaningful value
+	values.push_back(payload);
 }
 
 } // namespace people_msgs_utils

@@ -22,26 +22,24 @@ public:
 		const std::string& id,
 		unsigned long int age,
 		const std::vector<Person>& members,
-		const std::vector<unsigned int>& member_ids,
-		const std::vector<std::tuple<unsigned int, unsigned int, double>>& relations,
+		const std::vector<std::string>& member_ids,
+		const std::vector<std::tuple<std::string, std::string, double>>& relations,
 		const geometry_msgs::Point& center_of_gravity
 	);
 
 	/// @brief Constructor used by an aggregator of raw people_msgs
 	Group(
-		const std::string id,
+		const std::string& id,
 		const std::vector<Person>& members,
 		std::vector<std::string> tagnames,
 		std::vector<std::string> tags
 	);
 
+	/**
+	 * Returns identifier of the group
+	 */
 	inline std::string getName() const {
 		return group_id_;
-	}
-
-	inline unsigned int getID() const {
-		// TODO: catch exception / create a static counter
-		return std::stoul(group_id_);
 	}
 
 	inline unsigned long int getAge() const {
@@ -58,21 +56,21 @@ public:
 		return members_;
 	}
 
-	inline std::vector<unsigned int> getMemberIDs() const {
+	inline std::vector<std::string> getMemberIDs() const {
 		return member_ids_;
 	}
 
 	/// @brief Evaluates whether person identified as person_id is a member of the group
-	bool hasMember(unsigned int person_id) const;
+	bool hasMember(const std::string& person_id) const;
 
 	/// @brief Returns social relations within the group expressed as tuple
 	/// Tuple contents: track ID, track ID, relation estimation accuracy
-	inline std::vector<std::tuple<unsigned int, unsigned int, double>> getSocialRelations() const {
+	inline std::vector<std::tuple<std::string, std::string, double>> getSocialRelations() const {
 		return social_relations_;
 	}
 
 	/// @brief Returns social relations of a specific member
-	std::vector<std::pair<unsigned int, double>> getSocialRelations(unsigned int person_id) const;
+	std::vector<std::pair<std::string, double>> getSocialRelations(const std::string& person_id) const;
 
 	/**
 	 * @defgroup spatialmodel Methods related to spatial (elliptical) model of the F-formation and its O-space
@@ -170,9 +168,9 @@ protected:
 	/// @brief Copy of group members
 	std::vector<Person> members_;
 	/// IDs of other people classified to the same group
-	std::vector<unsigned int> member_ids_;
+	std::vector<std::string> member_ids_;
 	/// Social relations within the group as tuple: track ID, other track ID, relation estimation accuracy
-	std::vector<std::tuple<unsigned int, unsigned int, double>> social_relations_;
+	std::vector<std::tuple<std::string, std::string, double>> social_relations_;
 	/// Position of the group's center of gravity
 	geometry_msgs::Point center_of_gravity_;
 	/// Pose and covariance of the spatial model
@@ -189,8 +187,8 @@ static const Group EMPTY_GROUP(
 	std::to_string(std::numeric_limits<unsigned int>::max()),
 	0,
 	std::vector<Person>(),
-	std::vector<unsigned int>(),
-	std::vector<std::tuple<unsigned int, unsigned int, double>>(),
+	std::vector<std::string>(),
+	std::vector<std::tuple<std::string, std::string, double>>(),
 	geometry_msgs::Point{}
 );
 
