@@ -9,8 +9,8 @@ Group::Group(
 	const std::string& id,
 	unsigned long int age,
 	const std::vector<Person>& members,
-	const std::vector<unsigned int>& member_ids,
-	const std::vector<std::tuple<unsigned int, unsigned int, double>>& relations,
+	const std::vector<std::string>& member_ids,
+	const std::vector<std::tuple<std::string, std::string, double>>& relations,
 	const geometry_msgs::Point& center_of_gravity
 ):
 	group_id_(id),
@@ -24,7 +24,7 @@ Group::Group(
 }
 
 Group::Group(
-	const std::string id,
+	const std::string& id,
 	const std::vector<Person>& members,
 	std::vector<std::string> tagnames,
 	std::vector<std::string> tags
@@ -36,18 +36,18 @@ Group::Group(
 	computeSpatialModel();
 }
 
-bool Group::hasMember(unsigned int person_id) const {
+bool Group::hasMember(const std::string& person_id) const {
 	return std::find_if(
 		members_.begin(),
 		members_.end(),
 		[person_id](const Person& member) {
-			return member.getID() == person_id;
+			return member.getName() == person_id;
 		}
 	) != members_.end();
 }
 
-std::vector<std::pair<unsigned int, double>> Group::getSocialRelations(unsigned int person_id) const {
-	std::vector<std::pair<unsigned int, double>> relations_req;
+std::vector<std::pair<std::string, double>> Group::getSocialRelations(const std::string& person_id) const {
+	std::vector<std::pair<std::string, double>> relations_req;
 	for (const auto& relation: getSocialRelations()) {
 		// track ID, track ID, relation estimation accuracy
 		auto person_id1 = std::get<0>(relation);
@@ -83,7 +83,7 @@ bool Group::parseTags(const std::vector<std::string>& tagnames, const std::vecto
 		} else if (tag_it->find("group_age") != std::string::npos) {
 			age_ = static_cast<unsigned int>(std::stoul(*tag_value_it));
 		} else if (tag_it->find("group_track_ids") != std::string::npos) {
-			member_ids_ = parseString<unsigned int>(*tag_value_it, DELIMITER);
+			member_ids_ = parseString<std::string>(*tag_value_it, DELIMITER);
 		} else if (tag_it->find("group_center_of_gravity") != std::string::npos) {
 			auto pos_v = parseString<double>(*tag_value_it, DELIMITER);
 			if (pos_v.size() == 3) {
@@ -92,7 +92,7 @@ bool Group::parseTags(const std::vector<std::string>& tagnames, const std::vecto
 				center_of_gravity_.z = pos_v.at(2);
 			}
 		} else if (tag_it->find("social_relations") != std::string::npos) {
-			auto relation_v = parseString<double>(*tag_value_it, DELIMITER);
+			auto relation_v = parseString<std::string>(*tag_value_it, DELIMITER);
 			// relations are expressed as triplets: ID, ID, strength
 			if (!relation_v.empty() && relation_v.size() % 3 == 0) {
 				for (
@@ -100,15 +100,16 @@ bool Group::parseTags(const std::vector<std::string>& tagnames, const std::vecto
 					it != relation_v.cend();
 					it = it + 3
 				) {
-					unsigned int track_id1 = *it;
-					unsigned int track_id2 = *(it+1);
-					double strength = *(it+2);
+					std::string track_id1 = *it;
+					std::string track_id2 = *(it+1);
+					double strength = std::stod(*(it+2));
 					social_relations_.push_back(std::make_tuple(track_id1, track_id2, strength));
 				}
 			}
 		}
 		tag_value_it++;
 	}
+	return true;
 }
 
 void Group::computeSpatialModel() {

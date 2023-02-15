@@ -32,7 +32,7 @@ bool parseStringBool(const std::string& str);
 /**
  * @brief Parses string containing a set of T-type values
  *
- * @tparam T type of values
+ * @tparam T type of values (numeric)
  */
 template <typename T>
 std::vector<T> parseString(const std::string& str, const std::string& delimiter) {
@@ -68,5 +68,15 @@ std::vector<T> parseString(const std::string& str, const std::string& delimiter)
 	// token still stores some meaningful value
 	values.push_back(static_cast<T>(std::stod(payload)));
 }
+
+/**
+ * @brief Parses string containing a set of string values (this is a template specialization)
+ *
+ * @sa parseString template
+ *
+ * Defined in cpp to avoid multiple definitions
+ */
+template<>
+std::vector<std::string> parseString<std::string>(const std::string& str, const std::string& delimiter);
 
 } // namespace people_msgs_utils
