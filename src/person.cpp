@@ -1,6 +1,9 @@
 #include <people_msgs_utils/person.h>
 #include <people_msgs_utils/utils.h>
 
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/convert.h>
+
 namespace people_msgs_utils {
 
 Person::Person(const people_msgs::Person& person):
@@ -61,6 +64,30 @@ Person::Person(
 	track_age_(track_age),
 	group_id_(group_name)
 {}
+
+void Person::transform(const geometry_msgs::TransformStamped& transform) {
+	// transform pose with covariance
+	geometry_msgs::PoseWithCovarianceStamped pose_in;
+	pose_in.header.frame_id = transform.header.frame_id;
+	pose_in.pose = pose_;
+
+	geometry_msgs::PoseWithCovarianceStamped pose_out;
+	pose_out.header.frame_id = transform.child_frame_id;
+	tf2::doTransform(pose_in, pose_out, transform);
+
+	// transform velocity with covariance
+	geometry_msgs::PoseWithCovarianceStamped vel_in;
+	vel_in.header.frame_id = transform.header.frame_id;
+	vel_in.pose = vel_;
+
+	geometry_msgs::PoseWithCovarianceStamped vel_out;
+	vel_out.header.frame_id = transform.child_frame_id;
+	tf2::doTransform(vel_in, vel_out, transform);
+
+	// overwrite pose with cov. and vel with cov.
+	pose_ = pose_out.pose;
+	vel_ = vel_out.pose;
+}
 
 bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vector<std::string>& tags) {
 	if ((tagnames.size() != tags.size()) || tagnames.empty()) {
