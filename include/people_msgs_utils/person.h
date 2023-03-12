@@ -2,6 +2,7 @@
 
 #include <people_msgs/People.h>
 #include <geometry_msgs/PoseWithCovariance.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <tf2/utils.h>
 
 #include <array>
@@ -55,6 +56,16 @@ public:
 		unsigned long int track_age,
 		const std::string& group_name
 	);
+
+	/**
+	 * @brief Transforms person pose and velocity according to given @ref transform
+	 *
+	 * Assumes that the stored pose and velocity of the human are expressed in the parent frame of the @ref transform,
+	 * whereas child frame of the transform is the frame to transform into
+	 *
+	 * Uses calculations from tf2 library
+	 */
+	void transform(const geometry_msgs::TransformStamped& transform);
 
 	inline std::string getName() const {
 		return name_;
