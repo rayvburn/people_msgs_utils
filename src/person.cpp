@@ -82,7 +82,29 @@ void Person::transform(const geometry_msgs::TransformStamped& transform) {
 
 	geometry_msgs::PoseWithCovarianceStamped vel_out;
 	vel_out.header.frame_id = transform.child_frame_id;
-	tf2::doTransform(vel_in, vel_out, transform);
+	tf2::Transform transform_tf;
+	tf2::fromMsg(transform.transform, transform_tf);
+	vel_out.pose.covariance = tf2::transformCovariance(vel_in.pose.covariance, transform_tf);
+
+	// robust approach for velocity transformation (simple `tf2::doTransform` will not do)
+	auto pose_in_vel_comp = pose_in;
+	// displacement after applying velocity
+	pose_in_vel_comp.pose.pose.position.x += vel_in.pose.pose.position.x;
+	pose_in_vel_comp.pose.pose.position.y += vel_in.pose.pose.position.y;
+	pose_in_vel_comp.pose.pose.position.z += vel_in.pose.pose.position.z;
+
+	// transform the pose with applied velocity to the requested frame
+	geometry_msgs::PoseWithCovarianceStamped pose_out_vel_comp;
+	tf2::doTransform(pose_in_vel_comp, pose_out_vel_comp, transform);
+
+	// compute velocity of the person expressed in the costmap frame
+	vel_out.pose.pose.position.x = pose_out_vel_comp.pose.pose.position.x - pose_out.pose.pose.position.x;
+	vel_out.pose.pose.position.y = pose_out_vel_comp.pose.pose.position.y - pose_out.pose.pose.position.y;
+	vel_out.pose.pose.position.z = pose_out_vel_comp.pose.pose.position.z - pose_out.pose.pose.position.z;
+
+	// TODO: angular velocities stay the same only for 2D rotations; for complex rotations consider:
+	// https://answers.ros.org/question/192273/how-to-implement-velocity-transformation/
+	vel_out.pose.pose.orientation = vel_in.pose.pose.orientation;
 
 	// overwrite pose with cov. and vel with cov.
 	pose_ = pose_out.pose;
