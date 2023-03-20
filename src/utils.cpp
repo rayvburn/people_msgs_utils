@@ -126,7 +126,65 @@ std::pair<std::vector<Person>, std::vector<Group>> createFromPeople(const std::v
 		);
 	}
 
-	return std::make_pair(people_total, groups_total);
+	/*
+	 * Stage 5
+	 *
+	 * It may happen that not all people are tracked with the selected data source but groups will still
+	 * have relations with extra IDs
+	 */
+	std::vector<Group> groups_total_cleaned;
+	for (const auto& group: groups_total) {
+		// keep only members tracked according to the @ref people_total container
+		auto member_ids = group.getMemberIDs();
+		std::vector<std::string> member_ids_valid;
+		for (const auto& member_id: member_ids) {
+			auto it = std::find_if(
+				people_total.cbegin(),
+				people_total.cend(),
+				[&](const Person& person) {
+					return person.getName() == member_id;
+				}
+			);
+			if (it == people_total.cend()) {
+				continue;
+			}
+			member_ids_valid.push_back(member_id);
+		}
+		// erase relations with inexisting member IDs
+		auto relations = group.getSocialRelations();
+		std::vector<std::tuple<std::string, std::string, double>> relations_valid;
+		for (const auto& rel: relations) {
+			auto member1_it = std::find(member_ids_valid.cbegin(), member_ids_valid.cend(), std::get<0>(rel));
+			auto member2_it = std::find(member_ids_valid.cbegin(), member_ids_valid.cend(), std::get<1>(rel));
+			if (member1_it != member_ids_valid.cend() && member2_it != member_ids_valid.cend()) {
+				relations_valid.emplace_back(*member1_it, *member2_it, std::get<2>(rel));
+			}
+		}
+		// keep only valid members
+		auto members = group.getMembers();
+		People members_valid;
+		for (const auto& member: members) {
+			auto it = std::find(
+				member_ids_valid.cbegin(),
+				member_ids_valid.cend(),
+				member.getName()
+			);
+			if (it == member_ids_valid.cend()) {
+				continue;
+			}
+			members_valid.push_back(member);
+		}
+		groups_total_cleaned.emplace_back(
+			group.getName(),
+			group.getAge(),
+			members_valid,
+			member_ids_valid,
+			relations_valid,
+			group.getCenterOfGravity()
+		);
+	}
+
+	return std::make_pair(people_total, groups_total_cleaned);
 }
 
 std::vector<Group> fillGroupsWithMembers(const std::vector<Group>& groups, const std::vector<Person>& people) {
