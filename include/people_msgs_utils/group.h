@@ -36,6 +36,16 @@ public:
 	);
 
 	/**
+	 * @brief Transforms members and center of gravity and recalculates spatial model according to given @ref transform
+	 *
+	 * Assumes that the stored pose is expressed in the parent frame of the @ref transform,
+	 * whereas child frame of the transform is the frame to transform into
+	 *
+	 * Uses calculations from tf2 library
+	 */
+	void transform(const geometry_msgs::TransformStamped& transform);
+
+	/**
 	 * Returns identifier of the group
 	 */
 	inline std::string getName() const {

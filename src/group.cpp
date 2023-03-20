@@ -36,6 +36,28 @@ Group::Group(
 	computeSpatialModel();
 }
 
+void Group::transform(const geometry_msgs::TransformStamped& transform) {
+	// transform members and recalculate spatial model
+	for (auto& member: members_) {
+		member.transform(transform);
+	}
+
+	// transform center of gravity
+	geometry_msgs::PointStamped cog_in;
+	cog_in.header.frame_id = transform.header.frame_id;
+	cog_in.point = center_of_gravity_;
+
+	geometry_msgs::PointStamped cog_out;
+	cog_out.header.frame_id = transform.child_frame_id;
+	tf2::doTransform(cog_in, cog_out, transform);
+
+	// overwrite center of gravity (not calculated in @ref computeSpatialModel)
+	center_of_gravity_ = cog_out.point;
+
+	// recompute
+	computeSpatialModel();
+}
+
 bool Group::hasMember(const std::string& person_id) const {
 	return std::find_if(
 		members_.begin(),
