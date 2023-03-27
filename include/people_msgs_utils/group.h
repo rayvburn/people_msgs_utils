@@ -147,6 +147,9 @@ public:
 		return pose_.covariance[Person::COV_YAWYAW_INDEX];
 	}
 
+	/// Returns pose estimation reliability of the group arising from the members reliabilities
+	double getReliability() const;
+
 	/// Returns length of the spatial model expressed in the local coordinate system (major axis of the ellipse)
 	inline double getSpanX() const {
 		return span_.x;

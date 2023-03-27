@@ -85,6 +85,15 @@ std::vector<std::pair<std::string, double>> Group::getSocialRelations(const std:
 	return relations_req;
 }
 
+double Group::getReliability() const {
+	// here, average reliability is computed based on members' reliabilities
+	double reliability_total = 0.0;
+	for (const auto& member: members_) {
+		reliability_total += member.getReliability();
+	}
+	return reliability_total / static_cast<double>(members_.size());
+}
+
 bool Group::parseTags(const std::vector<std::string>& tagnames, const std::vector<std::string>& tags) {
 	if ((tagnames.size() != tags.size()) || tagnames.empty()) {
 		// no additional data can be retrieved
