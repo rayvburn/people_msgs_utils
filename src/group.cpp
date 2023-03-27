@@ -85,6 +85,15 @@ std::vector<std::pair<std::string, double>> Group::getSocialRelations(const std:
 	return relations_req;
 }
 
+double Group::getSocialRelationsStrength() const {
+	// average relation strength is computed
+	double strength_total = 0.0;
+	for (const auto& relation: social_relations_) {
+		strength_total += std::get<2>(relation);
+	}
+	return strength_total / static_cast<double>(social_relations_.size());
+}
+
 double Group::getReliability() const {
 	// here, average reliability is computed based on members' reliabilities
 	double reliability_total = 0.0;
