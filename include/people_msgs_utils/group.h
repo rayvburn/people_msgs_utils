@@ -82,6 +82,9 @@ public:
 	/// @brief Returns social relations of a specific member
 	std::vector<std::pair<std::string, double>> getSocialRelations(const std::string& person_id) const;
 
+	/// Returns group's bond reliability arising from the estimated social relations between members
+	double getSocialRelationsStrength() const;
+
 	/**
 	 * @defgroup spatialmodel Methods related to spatial (elliptical) model of the F-formation and its O-space
 	 *
