@@ -174,13 +174,24 @@ std::pair<std::vector<Person>, std::vector<Group>> createFromPeople(const std::v
 			}
 			members_valid.push_back(member);
 		}
+		// recompute center of gravity as with changed members it may be outdated
+		geometry_msgs::Point cog_valid;
+		for (const auto& member: members_valid) {
+			cog_valid.x += member.getPositionX();
+			cog_valid.y += member.getPositionY();
+			cog_valid.z += member.getPositionZ();
+		}
+		cog_valid.x /= members_valid.size();
+		cog_valid.y /= members_valid.size();
+		cog_valid.z /= members_valid.size();
+		// create an instance with 'valid', i.e., recomputed/cleaned params
 		groups_total_cleaned.emplace_back(
 			group.getName(),
 			group.getAge(),
 			members_valid,
 			member_ids_valid,
 			relations_valid,
-			group.getCenterOfGravity()
+			cog_valid
 		);
 	}
 

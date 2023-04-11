@@ -120,9 +120,11 @@ TEST(ExtractionTest, peopleInGroups) {
 			it = std::find(it + 1, track_ids.end(), "8");
 			ASSERT_EQ(it, track_ids.end());
 
-			EXPECT_EQ(group.getCenterOfGravity().x, 9.0);
-			EXPECT_EQ(group.getCenterOfGravity().y, 8.5);
-			EXPECT_EQ(group.getCenterOfGravity().z, 7.0);
+			// recompute center of gravity according to members' positions
+			//                               person  "0"   "1"   "8"
+			EXPECT_EQ(group.getCenterOfGravity().x, (1.0 + 1.0 + 1.0) / 3.0);
+			EXPECT_EQ(group.getCenterOfGravity().y, (2.0 + 2.0 + 2.0) / 3.0);
+			EXPECT_EQ(group.getCenterOfGravity().z, (0.0 + 0.0 + 0.0) / 3.0);
 
 		} else if (group.getName() == "9") {
 			EXPECT_EQ(group.getName(), "9");
@@ -142,9 +144,11 @@ TEST(ExtractionTest, peopleInGroups) {
 			it = std::find(it + 1, track_ids.end(), "5");
 			ASSERT_EQ(it, track_ids.end());
 
-			EXPECT_EQ(group.getCenterOfGravity().x, 1.0);
-			EXPECT_EQ(group.getCenterOfGravity().y, 2.5);
-			EXPECT_EQ(group.getCenterOfGravity().z, 3.0);
+			// recompute center of gravity according to members' positions
+			//                               person  "4"   "5"
+			EXPECT_EQ(group.getCenterOfGravity().x, (1.0 + 1.0) / 2.0);
+			EXPECT_EQ(group.getCenterOfGravity().y, (2.0 + 2.0) / 2.0);
+			EXPECT_EQ(group.getCenterOfGravity().z, (0.0 + 0.0) / 2.0);
 
 		} else {
 			ASSERT_EQ(true, false);
