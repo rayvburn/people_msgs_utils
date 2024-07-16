@@ -24,6 +24,7 @@ public:
 	static constexpr auto COV_ROLLROLL_INDEX = 21;
 	static constexpr auto COV_PITCHPITCH_INDEX = 28;
 	static constexpr auto COV_YAWYAW_INDEX = COV_MAT_SIZE - 1;
+	static const std::string DELIMITER;
 
 	/**
 	 * @brief Basic constructor from people_msgs/Person
@@ -203,6 +204,11 @@ public:
 	inline std::string getGroupName() const {
 		return group_id_;
 	}
+
+	/**
+	 * Converts internal state into an @ref people_msgs::Person object
+	 */
+	people_msgs::Person toPersonStd() const;
 
 protected:
 	/**

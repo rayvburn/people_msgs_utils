@@ -402,6 +402,49 @@ TEST(ExtractionTest, fillGroupsWithMembers) {
 	}
 }
 
+TEST(ExtractionTest, personToStdFormConversion) {
+	people_msgs::Person person_std;
+	person_std.name = "0";
+	person_std.position.x = 1.0;
+	person_std.position.y = 2.0;
+	person_std.position.z = 0.0;
+	person_std.velocity.x = 0.3;
+	person_std.velocity.y = 0.3;
+	person_std.velocity.z = 0.0;
+	person_std.reliability = 0.998;
+	// group-related tags will be discarded anyway
+	person_std.tagnames = createTagnames();
+	person_std.tags = {
+		"0.000000 0.000000 0.000000 1.000000", // repeated zeros to avoid mismatch in string conversion
+		createCovArray(0.03, 0.01, 0.02, 99999.0, 99999.0, 99999.0, 0.03),
+		createCovArray(0.983, 0.982, 0.981, 99999.0, 99999.0, 99999.0, 99999.0),
+		"1",
+		"0", // or false
+		"123",
+		"987",
+		"5"
+	};
+	auto person_utils = people_msgs_utils::Person(person_std);
+	auto person_std_conv = person_utils.toPersonStd();
+
+	EXPECT_EQ(person_std.name, person_std_conv.name);
+	EXPECT_EQ(person_std.position.x, person_std_conv.position.x);
+	EXPECT_EQ(person_std.position.y, person_std_conv.position.y);
+	EXPECT_EQ(person_std.position.z, person_std_conv.position.z);
+	EXPECT_EQ(person_std.velocity.x, person_std_conv.velocity.x);
+	EXPECT_EQ(person_std.velocity.y, person_std_conv.velocity.y);
+	EXPECT_EQ(person_std.velocity.z, person_std_conv.velocity.z);
+	EXPECT_EQ(person_std.reliability, person_std_conv.reliability);
+	ASSERT_EQ(person_std.tagnames.size(), person_std_conv.tagnames.size());
+	for (size_t i = 0; i < person_std.tagnames.size(); i++) {
+		EXPECT_EQ(person_std.tagnames.at(i), person_std_conv.tagnames.at(i));
+	}
+	ASSERT_EQ(person_std.tags.size(), person_std_conv.tags.size());
+	for (size_t i = 0; i < person_std.tags.size(); i++) {
+		EXPECT_EQ(person_std.tags.at(i), person_std_conv.tags.at(i));
+	}
+}
+
 int main(int argc, char** argv) {
 	testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();

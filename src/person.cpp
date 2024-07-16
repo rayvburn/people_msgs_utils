@@ -4,7 +4,12 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/convert.h>
 
+#include <sstream>
+
 namespace people_msgs_utils {
+
+// cannot use static constexpr with std::string in C++17
+const std::string Person::DELIMITER = " ";
 
 Person::Person(const people_msgs::Person& person):
 	Person(person.name, person.position, person.velocity, person.reliability, person.tagnames, person.tags)
@@ -111,6 +116,61 @@ void Person::transform(const geometry_msgs::TransformStamped& transform) {
 	vel_ = vel_out.pose;
 }
 
+people_msgs::Person Person::toPersonStd() const {
+	people_msgs::Person pstd;
+
+	pstd.name = getName();
+	pstd.position = getPosition();
+	pstd.reliability = getReliability();
+	pstd.velocity.x = getVelocityX();
+	pstd.velocity.y = getVelocityY();
+	pstd.velocity.z = getVelocityZ();
+
+	// helper function
+	auto serialize_array = [=](const std::array<double, 36>& data) -> std::string {
+		std::stringstream ss_pcov;
+		ss_pcov.setf(std::ios::fixed);
+		// iterate over all except the last element
+		for (size_t i = 0; i < (data.size() - 1); i++) {
+			ss_pcov << std::setprecision(6) << data.at(i) << DELIMITER;
+		}
+		// add the last element without the delimiter
+		ss_pcov << std::setprecision(6) << data.back();
+		return ss_pcov.str();
+	};
+	// tags and tagnames - inverse procedure to the one implemented in the @ref parseTags
+	pstd.tagnames.push_back("orientation");
+	std::stringstream ss_orient;
+	ss_orient.setf(std::ios::fixed);
+	ss_orient << std::setprecision(6) << getOrientation().x << DELIMITER;
+	ss_orient << std::setprecision(6) << getOrientation().y << DELIMITER;
+	ss_orient << std::setprecision(6) << getOrientation().z << DELIMITER;
+	ss_orient << std::setprecision(6) << getOrientation().w;
+	pstd.tags.push_back(ss_orient.str());
+
+	pstd.tagnames.push_back("pose_covariance");
+	pstd.tags.push_back(serialize_array(getCovariancePose()));
+
+	pstd.tagnames.push_back("twist_covariance");
+	pstd.tags.push_back(serialize_array(getCovarianceVelocity()));
+
+	pstd.tagnames.push_back("occluded");
+	pstd.tags.push_back(isOccluded() ? "1" : "0");
+
+	pstd.tagnames.push_back("matched");
+	pstd.tags.push_back(isMatched() ? "1" : "0");
+
+	pstd.tagnames.push_back("detection_id");
+	pstd.tags.push_back(std::to_string(getDetectionID()));
+
+	pstd.tagnames.push_back("track_age");
+	pstd.tags.push_back(std::to_string(getTrackAge()));
+
+	pstd.tagnames.push_back("group_id");
+	pstd.tags.push_back(getGroupName());
+	return pstd;
+}
+
 bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vector<std::string>& tags) {
 	if ((tagnames.size() != tags.size()) || tagnames.empty()) {
 		// no additional data can be retrieved
@@ -118,7 +178,6 @@ bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vect
 	}
 
 	// create iterators for tagnames and tags
-	const std::string DELIMITER = " ";
 	std::vector<std::string>::const_iterator tag_value_it = tags.begin();
 	for (
 		std::vector<std::string>::const_iterator tag_it = tagnames.begin();
