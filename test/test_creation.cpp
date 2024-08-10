@@ -422,7 +422,8 @@ TEST(ExtractionTest, personToStdFormConversion) {
 		"0", // or false
 		"123",
 		"987",
-		"5"
+		"5",
+		"0.500000 0.700000 0.800000 0.300000"
 	};
 	auto person_utils = people_msgs_utils::Person(person_std);
 	auto person_std_conv = person_utils.toPersonStd();
@@ -473,7 +474,8 @@ std::vector<people_msgs::Person> createSet1() {
 		"true",
 		"369",
 		"963",
-		""
+		"",
+		"0.0 0.0 0.0 1.0"
 	};
 
 	people_set.push_back(person);
@@ -502,6 +504,7 @@ std::vector<people_msgs::Person> createSet2() {
 		"123",
 		"0987",
 		"5",
+		"0.0 0.0 0.0 1.0",
 		"159",
 		"0 1 8",
 		"9.0 8.5 7.0",
@@ -521,6 +524,7 @@ std::vector<people_msgs::Person> createSet2() {
 		"321",
 		"456",
 		"5",
+		"0.0 0.0 0.0 1.0",
 		"159",
 		"1 8 0",
 		"9.0 8.5 7.0",
@@ -539,7 +543,8 @@ std::vector<people_msgs::Person> createSet2() {
 		"false",
 		"322",
 		"466",
-		""
+		"",
+		"0.0 0.0 0.0 1.0"
 	};
 	people_set.push_back(person);
 
@@ -555,6 +560,7 @@ std::vector<people_msgs::Person> createSet2() {
 		"951",
 		"159",
 		"9",
+		"0.0 0.0 0.0 1.0",
 		"147",
 		"4 5",
 		"1.0 2.5 3.0",
@@ -574,6 +580,7 @@ std::vector<people_msgs::Person> createSet2() {
 		"941",
 		"169",
 		"9",
+		"0.0 0.0 0.0 1.0",
 		"147",
 		"5 4",
 		"1.0 2.5 3.0",
@@ -593,6 +600,7 @@ std::vector<people_msgs::Person> createSet2() {
 		"931",
 		"179",
 		"5",
+		"0.0 0.0 0.0 1.0",
 		"159",
 		"8 1 0",
 		"9.0 8.5 7.0",
@@ -611,7 +619,8 @@ std::vector<people_msgs::Person> createSet2() {
 		"true",
 		"831",
 		"279",
-		""
+		"",
+		"0.0 0.0 0.0 1.0"
 	};
 	people_set.push_back(person);
 
@@ -628,6 +637,7 @@ std::vector<std::string> createTagnames() {
 	tagnames.push_back("detection_id");
 	tagnames.push_back("track_age");
 	tagnames.push_back("group_id");
+	tagnames.push_back("twist_angular");
 	return tagnames;
 }
 

@@ -168,6 +168,16 @@ people_msgs::Person Person::toPersonStd() const {
 
 	pstd.tagnames.push_back("group_id");
 	pstd.tags.push_back(getGroupName());
+
+	pstd.tagnames.push_back("twist_angular");
+	std::stringstream ss_velang;
+	ss_velang.setf(std::ios::fixed);
+	ss_velang << std::setprecision(6) << getVelocity().orientation.x << DELIMITER;
+	ss_velang << std::setprecision(6) << getVelocity().orientation.y << DELIMITER;
+	ss_velang << std::setprecision(6) << getVelocity().orientation.z << DELIMITER;
+	ss_velang << std::setprecision(6) << getVelocity().orientation.w;
+	pstd.tags.push_back(ss_velang.str());
+
 	return pstd;
 }
 
@@ -213,6 +223,14 @@ bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vect
 		} else if (tag_it->find("group_id") != std::string::npos) {
 			// primary key for later association
 			group_id_ = *tag_value_it;
+		} else if (tag_it->find("twist_angular") != std::string::npos) {
+			auto components = parseString<double>(*tag_value_it, DELIMITER);
+			if (components.size() == 4) {
+				vel_.pose.orientation.x = components.at(0);
+				vel_.pose.orientation.y = components.at(1);
+				vel_.pose.orientation.z = components.at(2);
+				vel_.pose.orientation.w = components.at(3);
+			}
 		}
 		tag_value_it++;
  	}
