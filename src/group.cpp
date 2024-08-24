@@ -5,6 +5,17 @@
 
 namespace people_msgs_utils {
 
+Group::Group():
+	Group(
+		std::to_string(std::numeric_limits<unsigned int>::max()),
+		0,
+		std::vector<Person>(),
+		std::vector<std::string>(),
+		std::vector<std::tuple<std::string, std::string, double>>(),
+		geometry_msgs::Point{}
+	)
+{}
+
 Group::Group(
 	const std::string& id,
 	unsigned long int age,

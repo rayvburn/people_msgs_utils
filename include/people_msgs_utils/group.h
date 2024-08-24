@@ -18,6 +18,9 @@ public:
 	/// Value assigned to variances that are not measured
 	static constexpr auto COVARIANCE_UNKNOWN = 9999999.9;
 
+	// Constructs a dummy group that does not contain any track IDs
+	Group();
+
 	Group(
 		const std::string& id,
 		unsigned long int age,
@@ -197,15 +200,5 @@ protected:
 
 //! Abbrev. for container storing multiple objects
 typedef std::vector<Group> Groups;
-
-// Dummy group that does not contain any track IDs
-static const Group EMPTY_GROUP(
-	std::to_string(std::numeric_limits<unsigned int>::max()),
-	0,
-	std::vector<Person>(),
-	std::vector<std::string>(),
-	std::vector<std::tuple<std::string, std::string, double>>(),
-	geometry_msgs::Point{}
-);
 
 } // namespace people_msgs_utils
