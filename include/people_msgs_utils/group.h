@@ -10,6 +10,9 @@
 
 namespace people_msgs_utils {
 
+// Forward declaration due to the circular dependency
+class Person;
+
 /**
  * @brief Stores attributes of the group of people
  */
@@ -17,6 +20,8 @@ class Group {
 public:
 	/// Value assigned to variances that are not measured
 	static constexpr auto COVARIANCE_UNKNOWN = 9999999.9;
+	/// Previously, taken from the Person class, but had to be introduced due to the circular dependency
+	static constexpr auto COV_MAT_SIZE = 36;
 
 	// Constructs a dummy group that does not contain any track IDs
 	Group();
@@ -126,32 +131,18 @@ public:
 	}
 
 	/// @return 6x6 matrix with covariance values
-	inline std::array<double, Person::COV_MAT_SIZE> getCovariancePose() const {
-		std::array<double, Person::COV_MAT_SIZE> arr;
-		std::copy(pose_.covariance.begin(), pose_.covariance.end(), arr.begin());
-		return arr;
-	}
+	std::array<double, COV_MAT_SIZE> getCovariancePose() const;
 
-	inline double getCovariancePoseXX() const {
-		return pose_.covariance[Person::COV_XX_INDEX];
-	}
+	double getCovariancePoseXX() const;
 
-	inline double getCovariancePoseXY() const {
-		return pose_.covariance[Person::COV_XY_INDEX];
-	}
+	double getCovariancePoseXY() const;
 
-	inline double getCovariancePoseYX() const {
-		return pose_.covariance[Person::COV_YX_INDEX];
-	}
+	double getCovariancePoseYX() const;
 
-	inline double getCovariancePoseYY() const {
-		return pose_.covariance[Person::COV_YY_INDEX];
-	}
+	double getCovariancePoseYY() const;
 
 	/// Not supported, returns nearly zero variance
-	inline double getCovariancePoseYawYaw() const {
-		return pose_.covariance[Person::COV_YAWYAW_INDEX];
-	}
+	double getCovariancePoseYawYaw() const;
 
 	/// Returns pose estimation reliability of the group arising from the members reliabilities
 	double getReliability() const;

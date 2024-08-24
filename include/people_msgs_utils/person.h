@@ -5,6 +5,8 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2/utils.h>
 
+#include <people_msgs_utils/group.h>
+
 #include <array>
 #include <memory>
 #include <string>
@@ -12,6 +14,9 @@
 #include <vector>
 
 namespace people_msgs_utils {
+
+// Forward declaration due to the circular dependency
+class Group;
 
 class Person {
 public:
@@ -208,7 +213,7 @@ public:
 	/**
 	 * Converts internal state into an @ref people_msgs::Person object
 	 */
-	people_msgs::Person toPersonStd() const;
+	people_msgs::Person toPersonStd(const people_msgs_utils::Group& group) const;
 
 protected:
 	/**

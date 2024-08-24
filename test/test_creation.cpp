@@ -426,7 +426,8 @@ TEST(ExtractionTest, personToStdFormConversion) {
 		"0.500000 0.700000 0.800000 0.300000"
 	};
 	auto person_utils = people_msgs_utils::Person(person_std);
-	auto person_std_conv = person_utils.toPersonStd();
+	// dummy/empty group created
+	auto person_std_conv = person_utils.toPersonStd(people_msgs_utils::Group());
 
 	EXPECT_EQ(person_std.name, person_std_conv.name);
 	EXPECT_EQ(person_std.position.x, person_std_conv.position.x);

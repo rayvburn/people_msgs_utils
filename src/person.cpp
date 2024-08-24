@@ -116,7 +116,7 @@ void Person::transform(const geometry_msgs::TransformStamped& transform) {
 	vel_ = vel_out.pose;
 }
 
-people_msgs::Person Person::toPersonStd() const {
+people_msgs::Person Person::toPersonStd(const people_msgs_utils::Group& group) const {
 	people_msgs::Person pstd;
 
 	pstd.name = getName();
@@ -177,6 +177,46 @@ people_msgs::Person Person::toPersonStd() const {
 	ss_velang << std::setprecision(6) << getVelocity().orientation.z << DELIMITER;
 	ss_velang << std::setprecision(6) << getVelocity().orientation.w;
 	pstd.tags.push_back(ss_velang.str());
+
+	// check if filling group information is necessary
+	if (!isAssignedToGroup()) {
+		return pstd;
+	}
+
+	// check if provided group information is correct
+	if (group.getMemberIDs().empty()) {
+		return pstd;
+	}
+
+	// extensive information about the corresponding group-related
+	pstd.tagnames.push_back("group_age");
+	pstd.tags.push_back(std::to_string(group.getAge()));
+
+	pstd.tagnames.push_back("group_track_ids");
+	std::stringstream ss_gtids;
+	for (const auto m: group.getMemberIDs()) {
+		ss_gtids << m << DELIMITER;
+	}
+	// add tag value
+	pstd.tags.push_back(ss_gtids.str());
+
+	pstd.tagnames.push_back("group_center_of_gravity");
+	std::stringstream ss_gcog;
+	ss_gcog.setf(std::ios::fixed);
+	ss_gcog << std::setprecision(6) << group.getCenterOfGravity().x << DELIMITER;
+	ss_gcog << std::setprecision(6) << group.getCenterOfGravity().y << DELIMITER;
+	ss_gcog << std::setprecision(6) << group.getCenterOfGravity().z;
+	pstd.tags.push_back(ss_gcog.str());
+
+	pstd.tagnames.push_back("social_relations");
+	std::stringstream ss_relations;
+	for (const auto& relation: group.getSocialRelations()) {
+		std::string track_id1 = std::get<0>(relation);
+		std::string track_id2 = std::get<1>(relation);
+		double strength = std::get<2>(relation);
+		ss_relations << track_id1 << DELIMITER << track_id2 << DELIMITER << strength << DELIMITER;
+	}
+	pstd.tags.push_back(ss_relations.str());
 
 	return pstd;
 }

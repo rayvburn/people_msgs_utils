@@ -105,6 +105,34 @@ double Group::getSocialRelationsStrength() const {
 	return strength_total / static_cast<double>(social_relations_.size());
 }
 
+std::array<double, Person::COV_MAT_SIZE> Group::getCovariancePose() const {
+	std::array<double, Person::COV_MAT_SIZE> arr;
+	std::copy(pose_.covariance.begin(), pose_.covariance.end(), arr.begin());
+	return arr;
+}
+
+// NOTE: all 'getCovariancePose...' methods had to be moved to the source file due to compilation errors
+// caused by the circular dependency
+double Group::getCovariancePoseXX() const {
+	return pose_.covariance[Person::COV_XX_INDEX];
+}
+
+double Group::getCovariancePoseXY() const {
+	return pose_.covariance[Person::COV_XY_INDEX];
+}
+
+double Group::getCovariancePoseYX() const {
+	return pose_.covariance[Person::COV_YX_INDEX];
+}
+
+double Group::getCovariancePoseYY() const {
+	return pose_.covariance[Person::COV_YY_INDEX];
+}
+
+double Group::getCovariancePoseYawYaw() const {
+	return pose_.covariance[Person::COV_YAWYAW_INDEX];
+}
+
 double Group::getReliability() const {
 	// here, average reliability is computed based on members' reliabilities
 	double reliability_total = 0.0;
