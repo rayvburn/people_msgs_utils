@@ -11,6 +11,18 @@ namespace people_msgs_utils {
 // cannot use static constexpr with std::string in C++17
 const std::string Person::DELIMITER = " ";
 
+Person::Person(const people_msgs_utils::Person& person):
+	name_(person.name_),
+	pose_(person.pose_),
+	reliability_(person.reliability_),
+	vel_(person.vel_),
+	occluded_(person.occluded_),
+	matched_(person.matched_),
+	detection_id_(person.detection_id_),
+	track_age_(person.track_age_),
+	group_id_(person.group_id_)
+{}
+
 Person::Person(const people_msgs::Person& person):
 	Person(person.name, person.position, person.velocity, person.reliability, person.tagnames, person.tags)
 {}

@@ -32,6 +32,11 @@ public:
 	static const std::string DELIMITER;
 
 	/**
+	 * @brief Copy constructor
+	 */
+	Person(const people_msgs_utils::Person& person);
+
+	/**
 	 * @brief Basic constructor from people_msgs/Person
 	 */
 	Person(const people_msgs::Person& person);
