@@ -5,6 +5,8 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2/utils.h>
 
+#include <people_msgs_utils/group.h>
+
 #include <array>
 #include <memory>
 #include <string>
@@ -12,6 +14,9 @@
 #include <vector>
 
 namespace people_msgs_utils {
+
+// Forward declaration due to the circular dependency
+class Group;
 
 class Person {
 public:
@@ -24,6 +29,12 @@ public:
 	static constexpr auto COV_ROLLROLL_INDEX = 21;
 	static constexpr auto COV_PITCHPITCH_INDEX = 28;
 	static constexpr auto COV_YAWYAW_INDEX = COV_MAT_SIZE - 1;
+	static const std::string DELIMITER;
+
+	/**
+	 * @brief Copy constructor
+	 */
+	Person(const people_msgs_utils::Person& person);
 
 	/**
 	 * @brief Basic constructor from people_msgs/Person
@@ -203,6 +214,11 @@ public:
 	inline std::string getGroupName() const {
 		return group_id_;
 	}
+
+	/**
+	 * Converts internal state into an @ref people_msgs::Person object
+	 */
+	people_msgs::Person toPersonStd(const people_msgs_utils::Group& group) const;
 
 protected:
 	/**

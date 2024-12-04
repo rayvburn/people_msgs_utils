@@ -5,6 +5,17 @@
 
 namespace people_msgs_utils {
 
+Group::Group():
+	Group(
+		std::to_string(std::numeric_limits<unsigned int>::max()),
+		0,
+		std::vector<Person>(),
+		std::vector<std::string>(),
+		std::vector<std::tuple<std::string, std::string, double>>(),
+		geometry_msgs::Point{}
+	)
+{}
+
 Group::Group(
 	const std::string& id,
 	unsigned long int age,
@@ -92,6 +103,34 @@ double Group::getSocialRelationsStrength() const {
 		strength_total += std::get<2>(relation);
 	}
 	return strength_total / static_cast<double>(social_relations_.size());
+}
+
+std::array<double, Person::COV_MAT_SIZE> Group::getCovariancePose() const {
+	std::array<double, Person::COV_MAT_SIZE> arr;
+	std::copy(pose_.covariance.begin(), pose_.covariance.end(), arr.begin());
+	return arr;
+}
+
+// NOTE: all 'getCovariancePose...' methods had to be moved to the source file due to compilation errors
+// caused by the circular dependency
+double Group::getCovariancePoseXX() const {
+	return pose_.covariance[Person::COV_XX_INDEX];
+}
+
+double Group::getCovariancePoseXY() const {
+	return pose_.covariance[Person::COV_XY_INDEX];
+}
+
+double Group::getCovariancePoseYX() const {
+	return pose_.covariance[Person::COV_YX_INDEX];
+}
+
+double Group::getCovariancePoseYY() const {
+	return pose_.covariance[Person::COV_YY_INDEX];
+}
+
+double Group::getCovariancePoseYawYaw() const {
+	return pose_.covariance[Person::COV_YAWYAW_INDEX];
 }
 
 double Group::getReliability() const {

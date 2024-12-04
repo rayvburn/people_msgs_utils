@@ -4,7 +4,24 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/convert.h>
 
+#include <sstream>
+
 namespace people_msgs_utils {
+
+// cannot use static constexpr with std::string in C++17
+const std::string Person::DELIMITER = " ";
+
+Person::Person(const people_msgs_utils::Person& person):
+	name_(person.name_),
+	pose_(person.pose_),
+	reliability_(person.reliability_),
+	vel_(person.vel_),
+	occluded_(person.occluded_),
+	matched_(person.matched_),
+	detection_id_(person.detection_id_),
+	track_age_(person.track_age_),
+	group_id_(person.group_id_)
+{}
 
 Person::Person(const people_msgs::Person& person):
 	Person(person.name, person.position, person.velocity, person.reliability, person.tagnames, person.tags)
@@ -111,6 +128,111 @@ void Person::transform(const geometry_msgs::TransformStamped& transform) {
 	vel_ = vel_out.pose;
 }
 
+people_msgs::Person Person::toPersonStd(const people_msgs_utils::Group& group) const {
+	people_msgs::Person pstd;
+
+	pstd.name = getName();
+	pstd.position = getPosition();
+	pstd.reliability = getReliability();
+	pstd.velocity.x = getVelocityX();
+	pstd.velocity.y = getVelocityY();
+	pstd.velocity.z = getVelocityZ();
+
+	// helper function
+	auto serialize_array = [=](const std::array<double, 36>& data) -> std::string {
+		std::stringstream ss_pcov;
+		ss_pcov.setf(std::ios::fixed);
+		// iterate over all except the last element
+		for (size_t i = 0; i < (data.size() - 1); i++) {
+			ss_pcov << std::setprecision(6) << data.at(i) << DELIMITER;
+		}
+		// add the last element without the delimiter
+		ss_pcov << std::setprecision(6) << data.back();
+		return ss_pcov.str();
+	};
+	// tags and tagnames - inverse procedure to the one implemented in the @ref parseTags
+	pstd.tagnames.push_back("orientation");
+	std::stringstream ss_orient;
+	ss_orient.setf(std::ios::fixed);
+	ss_orient << std::setprecision(6) << getOrientation().x << DELIMITER;
+	ss_orient << std::setprecision(6) << getOrientation().y << DELIMITER;
+	ss_orient << std::setprecision(6) << getOrientation().z << DELIMITER;
+	ss_orient << std::setprecision(6) << getOrientation().w;
+	pstd.tags.push_back(ss_orient.str());
+
+	pstd.tagnames.push_back("pose_covariance");
+	pstd.tags.push_back(serialize_array(getCovariancePose()));
+
+	pstd.tagnames.push_back("twist_covariance");
+	pstd.tags.push_back(serialize_array(getCovarianceVelocity()));
+
+	pstd.tagnames.push_back("occluded");
+	pstd.tags.push_back(isOccluded() ? "1" : "0");
+
+	pstd.tagnames.push_back("matched");
+	pstd.tags.push_back(isMatched() ? "1" : "0");
+
+	pstd.tagnames.push_back("detection_id");
+	pstd.tags.push_back(std::to_string(getDetectionID()));
+
+	pstd.tagnames.push_back("track_age");
+	pstd.tags.push_back(std::to_string(getTrackAge()));
+
+	pstd.tagnames.push_back("group_id");
+	pstd.tags.push_back(getGroupName());
+
+	pstd.tagnames.push_back("twist_angular");
+	std::stringstream ss_velang;
+	ss_velang.setf(std::ios::fixed);
+	ss_velang << std::setprecision(6) << getVelocity().orientation.x << DELIMITER;
+	ss_velang << std::setprecision(6) << getVelocity().orientation.y << DELIMITER;
+	ss_velang << std::setprecision(6) << getVelocity().orientation.z << DELIMITER;
+	ss_velang << std::setprecision(6) << getVelocity().orientation.w;
+	pstd.tags.push_back(ss_velang.str());
+
+	// check if filling group information is necessary
+	if (!isAssignedToGroup()) {
+		return pstd;
+	}
+
+	// check if provided group information is correct
+	if (group.getMemberIDs().empty()) {
+		return pstd;
+	}
+
+	// extensive information about the corresponding group-related
+	pstd.tagnames.push_back("group_age");
+	pstd.tags.push_back(std::to_string(group.getAge()));
+
+	pstd.tagnames.push_back("group_track_ids");
+	std::stringstream ss_gtids;
+	for (const auto m: group.getMemberIDs()) {
+		ss_gtids << m << DELIMITER;
+	}
+	// add tag value
+	pstd.tags.push_back(ss_gtids.str());
+
+	pstd.tagnames.push_back("group_center_of_gravity");
+	std::stringstream ss_gcog;
+	ss_gcog.setf(std::ios::fixed);
+	ss_gcog << std::setprecision(6) << group.getCenterOfGravity().x << DELIMITER;
+	ss_gcog << std::setprecision(6) << group.getCenterOfGravity().y << DELIMITER;
+	ss_gcog << std::setprecision(6) << group.getCenterOfGravity().z;
+	pstd.tags.push_back(ss_gcog.str());
+
+	pstd.tagnames.push_back("social_relations");
+	std::stringstream ss_relations;
+	for (const auto& relation: group.getSocialRelations()) {
+		std::string track_id1 = std::get<0>(relation);
+		std::string track_id2 = std::get<1>(relation);
+		double strength = std::get<2>(relation);
+		ss_relations << track_id1 << DELIMITER << track_id2 << DELIMITER << strength << DELIMITER;
+	}
+	pstd.tags.push_back(ss_relations.str());
+
+	return pstd;
+}
+
 bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vector<std::string>& tags) {
 	if ((tagnames.size() != tags.size()) || tagnames.empty()) {
 		// no additional data can be retrieved
@@ -118,7 +240,6 @@ bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vect
 	}
 
 	// create iterators for tagnames and tags
-	const std::string DELIMITER = " ";
 	std::vector<std::string>::const_iterator tag_value_it = tags.begin();
 	for (
 		std::vector<std::string>::const_iterator tag_it = tagnames.begin();
@@ -154,6 +275,14 @@ bool Person::parseTags(const std::vector<std::string>& tagnames, const std::vect
 		} else if (tag_it->find("group_id") != std::string::npos) {
 			// primary key for later association
 			group_id_ = *tag_value_it;
+		} else if (tag_it->find("twist_angular") != std::string::npos) {
+			auto components = parseString<double>(*tag_value_it, DELIMITER);
+			if (components.size() == 4) {
+				vel_.pose.orientation.x = components.at(0);
+				vel_.pose.orientation.y = components.at(1);
+				vel_.pose.orientation.z = components.at(2);
+				vel_.pose.orientation.w = components.at(3);
+			}
 		}
 		tag_value_it++;
  	}
